@@ -12,7 +12,7 @@ from decimal import Decimal
 class Limits:
     max_calls: int = 40                      # model calls, including a retry after a truncated reply
     max_total_tokens: int = 1_000_000        # input plus output, summed over every call
-    max_cost_usd: Decimal | None = Decimal("1.00")
+    max_cost_usd: Decimal | None = Decimal("1.50")
     max_wall_s: float = 900.0
     max_output_tokens: int = 4096            # per call; doubled once if a reply is cut off
     max_nudges: int = 1                      # reminders to call finish_review before giving up
@@ -24,6 +24,8 @@ class RunState:
     calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
+    cache_read_tokens: int = 0
+    cache_write_tokens: int = 0
     cost_usd: Decimal = Decimal("0")
     cost_known: bool = True                  # False once any call has no price (Sonnet 5)
     elapsed_s: float = 0.0
@@ -35,7 +37,9 @@ class RunState:
     def add(self, result):
         """Count one model call. A reply that was cut off still cost money, so it is counted."""
         self.calls += 1
-        self.input_tokens += result.usage.input_tokens
+        self.input_tokens += result.usage.total_input_tokens      # cached and uncached
+        self.cache_read_tokens += result.usage.cache_read_tokens
+        self.cache_write_tokens += result.usage.cache_write_tokens
         self.output_tokens += result.usage.output_tokens
         if result.cost_usd is None:
             self.cost_known = False

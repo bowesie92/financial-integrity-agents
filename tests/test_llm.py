@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from types import SimpleNamespace as NS
 
@@ -218,3 +220,29 @@ def test_make_client_from_env():
     with pytest.raises(NotImplementedError):
         make_client({"LLM_PROVIDER": "bedrock"}, sdk=FakeSDK([]))
     assert make_client({}, sdk=FakeSDK([])).profile.alias == "dev"
+
+
+# ---- prompt caching ----------------------------------------------------------------------------
+def test_cache_mark_goes_on_the_last_block_and_leaves_history_alone():
+    history = [{"role": "user", "content": "task"},
+               {"role": "assistant", "content": [{"type": "tool_use", "id": "a", "name": "t", "input": {}}]},
+               {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "a", "content": "x"},
+                                            {"type": "tool_result", "tool_use_id": "b", "content": "y"}]}]
+    before = [dict(m) for m in history]
+    r = build_request(get_profile("dev"), "sys", history, cache=True)
+    last = r["messages"][-1]["content"]
+    assert "cache_control" not in last[0] and last[1]["cache_control"] == {"type": "ephemeral"}
+    assert history == before and "cache_control" not in history[-1]["content"][1]
+    first = build_request(get_profile("dev"), "sys", [{"role": "user", "content": "task"}], cache=True)
+    assert first["messages"][0]["content"] == [{"type": "text", "text": "task",
+                                                "cache_control": {"type": "ephemeral"}}]
+    assert "cache_control" not in str(build_request(get_profile("dev"), "sys", history)["messages"])
+
+
+def test_cost_counts_cache_tokens():
+    from fia_llm.types import Usage, cost_usd
+    u = Usage(input_tokens=1000, output_tokens=500, cache_read_tokens=100000, cache_write_tokens=2000)
+    # 1000 at $1, 2000 written at 1.25x, 100000 read at 0.1x, 500 out at $5, per million
+    assert cost_usd(get_profile("dev"), u) == Decimal("0.016")
+    assert u.total_input_tokens == 103000
+    assert cost_usd(get_profile("demo"), u) is None

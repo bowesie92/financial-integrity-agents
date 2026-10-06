@@ -22,8 +22,9 @@ class LLMClient(Protocol):
 class AnthropicClient:
     provider = "anthropic"
 
-    def __init__(self, profile, api_key=None, sdk=None, sleep=time.sleep):
+    def __init__(self, profile, api_key=None, sdk=None, sleep=time.sleep, cache=False):
         self.profile = profile
+        self.cache = cache
         self._sleep = sleep
         if sdk is None:
             import anthropic  # imported late so tests and the fake client need no SDK
@@ -35,11 +36,11 @@ class AnthropicClient:
         self._sdk = sdk
 
     def complete(self, system, messages, tools=(), max_tokens=2048, thinking=None, effort=None):
-        req = build_request(self.profile, system, messages, tools, max_tokens, thinking, effort)
+        req = build_request(self.profile, system, messages, tools, max_tokens, thinking, effort, cache=self.cache)
         settings = {"provider": self.provider, "model": self.profile.model_id,
                     "alias": self.profile.alias, "max_tokens": max_tokens,
                     "thinking": req.get("thinking"), "effort": (req.get("output_config") or {}).get("effort"),
-                    "strict_tools": self.profile.strict_tools, "tool_choice": req.get("tool_choice")}
+                    "strict_tools": self.profile.strict_tools, "prompt_cache": self.cache, "tool_choice": req.get("tool_choice")}
         for attempt in range(MAX_ATTEMPTS):
             try:
                 raw = self._sdk.messages.with_raw_response.create(**req)

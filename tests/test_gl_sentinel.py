@@ -158,3 +158,10 @@ def test_real_run_findings_are_read_back_from_the_database(agent_conn):
         assert "**Risk:** medium" in memo and "users u06" in memo
         raise psycopg.Rollback()
     assert agent_conn.execute("select count(*) from fia.findings where run_id = 'gl-test-real'").fetchone()[0] == 0
+
+
+def test_prompt_requires_coverage_and_approval_checks():
+    p = build_system_prompt()
+    for need in ("Cover every test family", "An approval alone never clears an entry", "DATA RULES",
+                 "Never convert time zones yourself", "each test family a to e"):
+        assert need in p, need

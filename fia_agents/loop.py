@@ -101,6 +101,7 @@ def run_agent(client, registry, ctx, system, task, limits=None, log=None, kill=N
         state.add(reply)
         log.event("llm_call", call=state.calls, request_id=reply.request_id, workspace_id=reply.workspace_id,
                   stop_reason=reply.stop_reason, input_tokens=reply.usage.input_tokens,
+                  cache_read_tokens=reply.usage.cache_read_tokens, cache_write_tokens=reply.usage.cache_write_tokens,
                   output_tokens=reply.usage.output_tokens, cost_usd=reply.cost_usd, settings=reply.settings,
                   latency_s=round(clock() - started, 3), text=reply.text, thinking=reply.thinking,
                   tool_use=[c.name for c in reply.tool_calls])

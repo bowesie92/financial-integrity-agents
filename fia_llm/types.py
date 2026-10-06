@@ -11,6 +11,11 @@ class Usage:
     cache_read_tokens: int = 0
     cache_write_tokens: int = 0
 
+    @property
+    def total_input_tokens(self):
+        """Every input token the call used. The API reports cached tokens separately from input_tokens."""
+        return self.input_tokens + self.cache_read_tokens + self.cache_write_tokens
+
 
 @dataclass(frozen=True)
 class ToolCall:
@@ -48,11 +53,17 @@ class LLMResult:
         return {"role": "assistant", "content": [dict(b) for b in self.content]}
 
 
+CACHE_WRITE_MULT = Decimal("1.25")   # 5-minute cache write, times the base input price
+CACHE_READ_MULT = Decimal("0.1")     # cache read, times the base input price
+
+
 def cost_usd(profile, usage):
-    """Input plus output only. Cache tokens are not priced because caching is off for now."""
+    """Input, cache writes (1.25x), cache reads (0.1x) and output. None when the model has no price."""
     if profile.price_in is None or profile.price_out is None:
         return None
     return (Decimal(usage.input_tokens) * profile.price_in
+            + Decimal(usage.cache_write_tokens) * profile.price_in * CACHE_WRITE_MULT
+            + Decimal(usage.cache_read_tokens) * profile.price_in * CACHE_READ_MULT
             + Decimal(usage.output_tokens) * profile.price_out) / Decimal(1_000_000)
 
 

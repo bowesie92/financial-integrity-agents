@@ -12,6 +12,7 @@ runs/<run_id>.txt (the transcript), memos/<run_id>.md (the memo). To stop a run 
   touch .fia_kill      or press Ctrl+C once.
 """
 import argparse
+import json
 import re
 import sys
 from decimal import Decimal
@@ -44,12 +45,13 @@ def main():
     ap.add_argument("--max-calls", type=int, default=Limits().max_calls)
     ap.add_argument("--max-cost", type=Decimal, default=Limits().max_cost_usd)
     ap.add_argument("--max-wall", type=float, default=Limits().max_wall_s)
+    ap.add_argument("--no-cache", action="store_true", help="turn prompt caching off")
     ap.add_argument("--env-file", default="/etc/financial-integrity-agents-secrets/anthropic.env")
     ap.add_argument("--key-var", default="ANTHROPIC_API_KEY")
     a = ap.parse_args()
 
     limits = Limits(max_calls=a.max_calls, max_cost_usd=a.max_cost, max_wall_s=a.max_wall)
-    client = AnthropicClient(get_profile(a.model), api_key=read_key(a.env_file, a.key_var))
+    client = AnthropicClient(get_profile(a.model), api_key=read_key(a.env_file, a.key_var), cache=not a.no_cache)
     run_id = new_run_id()
     kill = KillSwitch()
     if kill.is_set():
@@ -79,6 +81,13 @@ def main():
     cost = "not priced" if result.cost_usd is None else f"${result.cost_usd:.4f}"
     print(f"\nstatus {result.status}  calls {result.calls}  tool calls {result.tool_calls}  findings {result.findings}  "
           f"tokens {result.input_tokens}/{result.output_tokens}  cost {cost}  time {result.wall_s} s")
+    reads = writes = 0
+    for line in log_path.read_text(encoding="utf-8").splitlines():
+        e = json.loads(line)
+        if e.get("event") == "llm_call":
+            reads += e.get("cache_read_tokens") or 0
+            writes += e.get("cache_write_tokens") or 0
+    print(f"cache     {'off' if a.no_cache else 'on'}  read {reads}  written {writes}  (the input figure above includes both)")
     if result.detail:
         print("detail:", result.detail)
     print("log       ", log_path.relative_to(ROOT))

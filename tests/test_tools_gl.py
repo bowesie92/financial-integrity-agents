@@ -207,3 +207,13 @@ def test_every_result_fits_the_budget(ctx):
                     ("list_journal_entries", {"source": "manual"})]:
         env = REG.run(ctx, name, {"reason": R, **a})
         assert len(envelope_json(env)) <= MAX_CHARS, name
+
+
+def test_list_entries_summary_covers_all_matches_with_roles_and_local_time(ctx):
+    r = run(ctx, "list_journal_entries", account_id="6960", posted_by="u03")
+    sm = r["summary"]
+    assert sm["matching_entries"] > len(r["rows"]) and sm["total_amount"] > 0
+    assert sm["posters"][0]["user_id"] == "u03" and sm["posters"][0]["role"] == "senior_accountant"
+    assert {a["role"] for a in sm["approvers"]} >= {"controller"}
+    assert sum(a["entries"] for a in sm["approvers"]) == sm["matching_entries"]
+    assert all("posted_at" not in x and x["posted_local"][-3:].isalpha() for x in r["rows"])

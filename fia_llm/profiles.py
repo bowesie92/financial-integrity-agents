@@ -71,8 +71,20 @@ def _thinking_field(p, mode, effort):
     return {"type": "adaptive", "display": "summarized"}
 
 
+def _mark_cache(messages):
+    """Copy the messages and put one cache breakpoint on the last block of the last message. The cache
+    covers tools, system and every earlier message, so each call re-reads the history at 0.1x the input
+    price. The caller's history is not changed. Prompts under the model's minimum (4,096 tokens for
+    Haiku 4.5) are simply not cached; the API returns no error."""
+    last = messages[-1]
+    content = last["content"]
+    blocks = [{"type": "text", "text": content}] if isinstance(content, str) else [dict(b) for b in content]
+    blocks[-1] = {**blocks[-1], "cache_control": {"type": "ephemeral"}}
+    return [*messages[:-1], {**last, "content": blocks}]
+
+
 def build_request(profile, system, messages, tools=(), max_tokens=2048,
-                  thinking=None, effort=None, require_reason=True):
+                  thinking=None, effort=None, require_reason=True, cache=False):
     """Return the keyword arguments for messages.create, or raise ProfileError."""
     if not isinstance(system, str) or not system.strip():
         raise ProfileError("system must be a non-empty string")
@@ -86,7 +98,7 @@ def build_request(profile, system, messages, tools=(), max_tokens=2048,
         raise ProfileError(f"max_tokens {max_tokens} exceeds {profile.max_output_tokens}")
 
     req = {"model": profile.model_id, "max_tokens": max_tokens, "system": system,
-           "messages": list(messages)}
+           "messages": _mark_cache(messages) if cache else list(messages)}
 
     th = _thinking_field(profile, thinking, effort)
     if th is not None:

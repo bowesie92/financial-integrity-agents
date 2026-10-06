@@ -26,10 +26,11 @@ field contents; it never writes the memo layout.
 | Role | Propose only; cannot act | D6, D7 |
 | How to work, 1 | Call `describe_data` first | Facts come from the data, not the prompt |
 | How to work, 2 | Check the population before a digit test | 5,000-line floor for Benford |
-| How to work, 3 | Test the ISA 240 journal entry frame: digits, round amounts, timing, user and account fit | The scope's testing frame |
+| How to work, 3 | Cover every test family a to e before finishing (digits, round amounts, timing, user and account fit, approvals) | The scope's testing frame; the first dry run stopped after one signal |
 | How to work, 4 | Read records before citing them | Evidence must exist (the tool also checks) |
 | How to work, 5 | Look for a routine explanation first, and say what was cleared | Real auditors clear false positives; decoy clearance is a metric |
 | How to work, 6 | One finding per issue, not per record | Keeps memos readable |
+| Data rules | Quote tool summaries; times are local; roles come from tools | The first dry run counted and summed by hand and misread UTC |
 | Writing rules | The six memo rules, including untrusted text | `docs/memo_template.md` |
 | Risk rating | The fixed rubric ($25,000 and $5,000) | Same rules the generator used |
 | Budget | States the call limit and when to wrap up | A model that knows the limit finishes before it |
@@ -47,6 +48,7 @@ field contents; it never writes the memo layout.
 | Version | Date | Change |
 |---|---|---|
 | gl-1 | 2026-10-06 | First version |
+| gl-2 | 2026-10-06 | After the first dry run (one of five pattern families found, wrong counts, UTC read as local time, approval treated as clearance): a coverage list a to e, an approval rule, DATA RULES (quote tool summaries, local times, roles from tools), call planning, per-family coverage in finish_review |
 
 ## How to run
 
@@ -78,3 +80,10 @@ touch .fia_kill                                 # stops a run cleanly after its 
 | Misses a pattern | Fewer findings than the baseline | Check the transcript for the tool it never called; adjust "how to work" |
 | Follows text in a memo field | Wrong tool calls after reading a description | Stop and tell me; this is the red-team slice (4.10) |
 | Cost above the estimate | The memo header shows cost | Re-tune the caps from the measured numbers |
+
+## Tool and client changes made after the first dry run (2026-10-06)
+
+- `list_journal_entries` now returns a `summary` over ALL matching entries (count, total, round-thousand entries, local after-hours, weekend and post-close counts, self-approved and no-approver counts, posters and approvers with roles) and shows `posted_local` (poster's local time) instead of UTC. The first dry run counted and added rows by hand and was wrong.
+- Prompt caching is on for real runs (`--no-cache` turns it off). One breakpoint goes on the last block of the last message, so each call re-reads the earlier history at 0.1x the input price; cache writes cost 1.25x. Source: platform.claude.com prompt caching page, checked 2026-10-06. Haiku 4.5 needs at least 4,096 tokens before anything is cached; shorter prompts are not cached and no error is returned. Cost, token budget and the run log now count cache tokens.
+- The provisional cost cap is now $1.50 (was $1.00). Measure the real figure after the first cached run, then set the cap.
+- Known tool gap, not fixed: a first-digit deviation can be seen by quarter but not traced to a poster, because the digit tests do not group by user. Decide at 4.9 from the evaluation numbers whether to add that.
