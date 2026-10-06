@@ -1,6 +1,7 @@
 """Rules-only baseline (task 4.5). Twelve fixed rules, one per line of docs/metrics.md section 5,
-written before any agent exists. Thresholds live in THRESHOLDS and are pinned by a test. No LLM,
-no tuning: change a number only through an entry under Amendments in docs/metrics.md.
+written before any agent exists. No LLM. Thresholds live in THRESHOLDS_V1 (as written in Phase 1) and
+THRESHOLDS_V2 (V1 plus the dated Amendment 1 in docs/metrics.md); both are pinned by tests, and both
+are reported. A number changes only through an entry under Amendments in docs/metrics.md.
 
 Each rule returns findings shaped {rule, agent, refs, detail}. refs holds je_ids or invoice_ids
 (and payment_ids) so the evaluation harness can match a finding to a manifest row by overlap.
@@ -14,11 +15,12 @@ from fia_tools import ap as AP
 from fia_tools import gl as GL
 from fia_tools.db import query
 
-THRESHOLDS = {
+THRESHOLDS_V1 = {
     "benford_mad_above": 0.015,
     "round_min_amount": 1000, "round_multiple": 1000, "round_min_entries_per_month": 20,
     "post_close": True,
-    "pairing_min_amount": 5000, "pairing_history_periods": 6,
+    "pairing_rule": "unused_class", "pairing_min_amount": 5000, "pairing_history_periods": 6,
+    "pairing_max_user_share": None,
     "exact_window_days": 30,
     "near_window_days": 30, "near_tolerance_pct": 1,
     "split_window_days": 7, "split_limit": 5000,
@@ -27,10 +29,26 @@ THRESHOLDS = {
     "outlier_z": 3, "outlier_min_prior": 6,
     "bank_change_within_days": 30, "bank_change_min_payment": 5000,
 }
-T = THRESHOLDS
+# Amendment 1 (2026-10-05, before any agent run): two rules that cannot fire on this data as first written.
+#  - round-dollar: 5 entries a month instead of 20. Ordinary users post at most one round entry a month;
+#    the Phase 1 figure of 20 was a blind guess.
+#  - user-account pairing: the D20 rule (no role peer ever posts to the account and the user's share of
+#    entries is under 1 percent) instead of "class unused for 6 months"; D20 already replaced the wording.
+#    Automated sources (system, payroll) are skipped, as the Phase 2 data hygiene note intends.
+THRESHOLDS_V2 = {**THRESHOLDS_V1, "round_min_entries_per_month": 5,
+                 "pairing_rule": "peer_rarity", "pairing_max_user_share": 0.01}
+VERSIONS = {"v1": THRESHOLDS_V1, "v2": THRESHOLDS_V2}
+T = THRESHOLDS_V1       # rules read the active thresholds from here; use_version() switches them
 GL_RULES = ("benford", "round_dollar", "timing", "post_close", "user_account_pairing")
 AP_RULES = ("exact_duplicate", "near_duplicate", "split", "new_vendor", "po_mismatch", "outlier", "bank_change")
 ALL_RULES = GL_RULES + AP_RULES
+
+
+def use_version(version):
+    """Make `version` (v1 or v2) the active thresholds. Returns the dict."""
+    global T
+    T = VERSIONS[version]
+    return T
 
 
 def _finding(rule, agent, refs, **detail):
@@ -86,6 +104,42 @@ def timing_and_post_close(ctx):
 
 
 def user_account_pairing(ctx):
+    if T["pairing_rule"] == "peer_rarity":
+        return _pairing_peer_rarity(ctx)
+    return _pairing_unused_class(ctx)
+
+
+def _pairing_peer_rarity(ctx):
+    """D20: a line of at least $5,000 in an account that no other user in the poster's role ever posts to,
+    where the poster's own entries to it are under 1 percent of all the poster's entries. Entries from the
+    automated sources (system, payroll) are skipped: they are not a person choosing an account."""
+    rows = query(ctx.conn, """
+        with ue as (select je.posted_by, l.account_id, count(distinct je.je_id) as n
+                    from fia.gl_lines l join fia.journal_entries je on je.je_id = l.je_id group by 1, 2),
+             ut as (select posted_by, count(*) as t from fia.journal_entries group by 1)
+        select je.je_id, je.posted_by, je.period_id, l.account_id, greatest(l.debit, l.credit) as amount,
+               ue.n as account_entries, ut.t as user_entries
+        from fia.gl_lines l join fia.journal_entries je on je.je_id = l.je_id
+             join ue on ue.posted_by = je.posted_by and ue.account_id = l.account_id
+             join ut on ut.posted_by = je.posted_by
+             join fia.users u on u.user_id = je.posted_by
+        where greatest(l.debit, l.credit) >= %s and ue.n::numeric / ut.t < %s
+          and je.source not in ('system', 'payroll')
+          and not exists (select 1 from ue ue2 join fia.users u2 on u2.user_id = ue2.posted_by
+                          where ue2.account_id = l.account_id and u2.role = u.role
+                                and ue2.posted_by <> je.posted_by)
+        order by je.je_id, l.account_id""", [T["pairing_min_amount"], T["pairing_max_user_share"]])
+    by = defaultdict(list)
+    for r in rows:
+        by[r["je_id"]].append(r)
+    return [_finding("user_account_pairing", "gl_sentinel", {"je_ids": [je]}, user=v[0]["posted_by"],
+                     period=v[0]["period_id"],
+                     lines=[{"account_id": r["account_id"], "amount": r["amount"],
+                             "user_share": round(r["account_entries"] / r["user_entries"], 4)} for r in v])
+            for je, v in sorted(by.items())]
+
+
+def _pairing_unused_class(ctx):
     """A line of at least $5,000 in an account class the user did not touch in the prior 6 periods.
     The user must have posted something in that window, otherwise there is no history to compare."""
     lo = "to_char(to_date(x.period_id, 'YYYY-MM') - make_interval(months => %s), 'YYYY-MM')"

@@ -88,4 +88,11 @@ Target: mean score at least 4.0 of 5.
 - The loop caps (iterations, tokens, wall time) are hard limits in every run.
 
 ## Amendments
-None yet.
+### Amendment 1 (2026-10-05, before any agent run)
+Changed: two rules in the rules-only baseline.
+1. Round-dollar: flag a user with 5 or more entries in one month that are $1,000 or more and exact multiples of $1,000. It was 20.
+2. User-account pairing: flag a line of $5,000 or more where no other user in the poster's role ever posts to the account and the user's entries to it are under 1 percent of all that user's entries, ignoring system and payroll sources. It was an account class unused in the prior 6 months.
+
+Reason: as first written, neither rule could fire on this data. Ordinary users post at most one such round entry in a month, so 20 sat far above anything that happens, and a class test cannot flag a user who keeps posting to the class. D20 had already replaced the pairing wording for the pattern itself.
+
+Limits: the author had seen the seed 1 planted counts when choosing, so version 2 is not blind. Both versions are reported side by side, and version 1 (the Phase 1 thresholds) stays the pre-registered baseline. Seed 2 has not been examined and no agent result exists. All other thresholds are unchanged.

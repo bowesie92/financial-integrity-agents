@@ -1,5 +1,5 @@
-"""Rules-only baseline. The thresholds are pinned to docs/metrics.md section 5; the DB tests run the
-rules on seed 1 and check known planted ids are found, that the result is deterministic, and that
+"""Rules-only baseline. V1 thresholds are pinned to docs/metrics.md section 5 as written in Phase 1 and V2
+to Amendment 1; the DB tests run the rules on seed 1 and check known planted ids are found, that the result is deterministic, and that
 the baseline writes nothing."""
 import json
 
@@ -11,8 +11,8 @@ from baseline.run import run
 RULE_NAMES = set(rules.ALL_RULES)
 
 
-def test_thresholds_are_the_ones_fixed_in_metrics():
-    t = rules.THRESHOLDS
+def test_v1_thresholds_are_the_ones_fixed_in_metrics():
+    t = rules.THRESHOLDS_V1
     assert t["benford_mad_above"] == 0.015
     assert (t["round_min_amount"], t["round_multiple"], t["round_min_entries_per_month"]) == (1000, 1000, 20)
     assert (t["pairing_min_amount"], t["pairing_history_periods"]) == (5000, 6)
@@ -22,6 +22,14 @@ def test_thresholds_are_the_ones_fixed_in_metrics():
     assert (t["po_excess_pct"], t["po_excess_dollars"]) == (5, 100)
     assert (t["outlier_z"], t["outlier_min_prior"]) == (3, 6)
     assert (t["bank_change_within_days"], t["bank_change_min_payment"]) == (30, 5000)
+
+
+def test_v2_changes_only_the_two_amended_rules():
+    v1, v2 = rules.THRESHOLDS_V1, rules.THRESHOLDS_V2
+    changed = {k for k in v1 if v1[k] != v2[k]}
+    assert changed == {"round_min_entries_per_month", "pairing_rule", "pairing_max_user_share"}
+    assert v2["round_min_entries_per_month"] == 5
+    assert (v2["pairing_rule"], v2["pairing_max_user_share"]) == ("peer_rarity", 0.01)
 
 
 def test_rule_lists_cover_the_twelve_metric_lines():
@@ -109,11 +117,38 @@ def test_known_planted_items_are_found(result):
     assert _found(result, "timing", ["JE-2025-007277"])
 
 
-def test_fixed_thresholds_leave_two_planted_gl_patterns_unflagged(result):
+def test_v1_leaves_two_planted_gl_patterns_unflagged(result):
     """Documented in docs/baseline_notes.md: the round-dollar rule needs 20 entries in a month but the
     planted cluster is 15 per quarter-end month, and the pairing rule needs a class unused for 6 months
-    but the planted user posts to the asset class most months. If the rules change, change the note."""
+    but the planted user posts to the asset class most months. This is why Amendment 1 exists."""
+    assert result["version"] == "v1"
     assert not any(f["rule"] in ("round_dollar", "user_account_pairing") for f in result["findings"])
+
+
+@pytest.fixture(scope="module")
+def result2(agent_conn):
+    return run("test", "v2")
+
+
+def test_v2_round_dollar_finds_the_planted_user_months(result2):
+    rd = [f for f in result2["findings"] if f["rule"] == "round_dollar"]
+    assert sorted((f["detail"]["user"], f["detail"]["period"]) for f in rd) == [
+        ("u03", "2025-03"), ("u03", "2025-06"), ("u03", "2025-09"), ("u03", "2025-12")]
+    assert all(f["detail"]["round_entries"] >= 5 for f in rd)
+
+
+def test_v2_pairing_finds_u11_and_skips_automated_postings(result2):
+    pf = [f for f in result2["findings"] if f["rule"] == "user_account_pairing"]
+    assert any("JE-2025-000347" in f["refs"]["je_ids"] for f in pf)
+    assert sum(f["detail"]["user"] == "u11" for f in pf) == 15
+    assert not any(f["detail"]["user"] == "u24" for f in pf)
+    assert all(l["user_share"] < 0.01 for f in pf for l in f["detail"]["lines"])
+
+
+def test_v2_differs_from_v1_only_in_the_two_amended_rules(result, result2):
+    keep = lambda r: [f for f in r["findings"] if f["rule"] not in ("round_dollar", "user_account_pairing")]
+    assert keep(result) == keep(result2)
+    assert result2["version"] == "v2" and result2["thresholds"] == rules.THRESHOLDS_V2
 
 
 def test_timing_rule_excludes_post_close_and_period_end_flags(result):

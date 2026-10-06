@@ -1,14 +1,17 @@
 {
  "label": "seed1",
- "generated_at": "2026-10-06T05:52:21+00:00",
+ "version": "v2",
+ "generated_at": "2026-10-06T06:07:57+00:00",
  "thresholds": {
   "benford_mad_above": 0.015,
   "round_min_amount": 1000,
   "round_multiple": 1000,
-  "round_min_entries_per_month": 20,
+  "round_min_entries_per_month": 5,
   "post_close": true,
+  "pairing_rule": "peer_rarity",
   "pairing_min_amount": 5000,
   "pairing_history_periods": 6,
+  "pairing_max_user_share": 0.01,
   "exact_window_days": 30,
   "near_window_days": 30,
   "near_tolerance_pct": 1,
@@ -25,10 +28,10 @@
  },
  "counts": {
   "benford": 1,
-  "round_dollar": 0,
+  "round_dollar": 4,
   "timing": 48,
   "post_close": 26,
-  "user_account_pairing": 0,
+  "user_account_pairing": 16,
   "exact_duplicate": 19,
   "near_duplicate": 37,
   "split": 5,
@@ -49,6 +52,118 @@
     "band": "nonconforming",
     "records": 13068,
     "sufficient_sample": true
+   }
+  },
+  {
+   "rule": "round_dollar",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-003323",
+     "JE-2025-003345",
+     "JE-2025-003401",
+     "JE-2025-003422",
+     "JE-2025-003448",
+     "JE-2025-003463",
+     "JE-2025-003469",
+     "JE-2025-003474",
+     "JE-2025-003481",
+     "JE-2025-003500",
+     "JE-2025-003562",
+     "JE-2025-003565",
+     "JE-2025-003596",
+     "JE-2025-003626",
+     "JE-2025-003633"
+    ]
+   },
+   "detail": {
+    "user": "u03",
+    "period": "2025-03",
+    "round_entries": 15
+   }
+  },
+  {
+   "rule": "round_dollar",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-006958",
+     "JE-2025-006973",
+     "JE-2025-007026",
+     "JE-2025-007027",
+     "JE-2025-007052",
+     "JE-2025-007086",
+     "JE-2025-007138",
+     "JE-2025-007170",
+     "JE-2025-007180",
+     "JE-2025-007204",
+     "JE-2025-007210",
+     "JE-2025-007214",
+     "JE-2025-007216",
+     "JE-2025-007239",
+     "JE-2025-007268"
+    ]
+   },
+   "detail": {
+    "user": "u03",
+    "period": "2025-06",
+    "round_entries": 15
+   }
+  },
+  {
+   "rule": "round_dollar",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011035",
+     "JE-2025-011039",
+     "JE-2025-011050",
+     "JE-2025-011059",
+     "JE-2025-011068",
+     "JE-2025-011085",
+     "JE-2025-011096",
+     "JE-2025-011122",
+     "JE-2025-011184",
+     "JE-2025-011187",
+     "JE-2025-011196",
+     "JE-2025-011208",
+     "JE-2025-011215",
+     "JE-2025-011239",
+     "JE-2025-011274"
+    ]
+   },
+   "detail": {
+    "user": "u03",
+    "period": "2025-09",
+    "round_entries": 15
+   }
+  },
+  {
+   "rule": "round_dollar",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014686",
+     "JE-2025-014722",
+     "JE-2025-014740",
+     "JE-2025-014773",
+     "JE-2025-014781",
+     "JE-2025-014785",
+     "JE-2025-014787",
+     "JE-2025-014797",
+     "JE-2025-014812",
+     "JE-2025-014813",
+     "JE-2025-014819",
+     "JE-2025-014869",
+     "JE-2025-014881",
+     "JE-2025-014887",
+     "JE-2025-014966"
+    ]
+   },
+   "detail": {
+    "user": "u03",
+    "period": "2025-12",
+    "round_entries": 15
    }
   },
   {
@@ -1081,6 +1196,326 @@
    },
    "detail": {
     "user": "u07"
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-000347"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-01",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "6498.35",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-000468"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-01",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "11281.03",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-000536"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-01",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "6621.29",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-000629"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-01",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "31003.21",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-003109"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-03",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "19087.38",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-003240"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-03",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "51205.49",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-003732"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-04",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "32807.16",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-004528"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "period": "2025-04",
+    "lines": [
+     {
+      "account_id": "6960",
+      "amount": "6490.80",
+      "user_share": 0.0065
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-005462"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-05",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "23224.30",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-006385"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-06",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "10496.93",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-006418"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-06",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "9649.55",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007487"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-07",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "6419.56",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007648"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-07",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "13408.88",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007971"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-07",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "7763.82",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008294"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-07",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "20298.14",
+      "user_share": 0.0083
+     }
+    ]
+   }
+  },
+  {
+   "rule": "user_account_pairing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008742"
+    ]
+   },
+   "detail": {
+    "user": "u11",
+    "period": "2025-08",
+    "lines": [
+     {
+      "account_id": "1500",
+      "amount": "5625.12",
+      "user_share": 0.0083
+     }
+    ]
    }
   },
   {
