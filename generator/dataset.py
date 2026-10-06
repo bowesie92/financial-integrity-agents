@@ -22,7 +22,7 @@ COLUMNS = {
                         "approved_by"],
     "invoices": ["invoice_id", "vendor_id", "doc_number", "txn_date", "due_date", "total_amt",
                  "po_id", "site_id", "memo", "entered_by", "entered_at", "approved_by",
-                 "approved_at"],
+                 "approved_at", "tax_amt"],
     "invoice_lines": ["invoice_id", "line_num", "account_id", "amount", "description"],
     "payments": ["payment_id", "invoice_id", "paid_at", "amount", "bank_last4", "method"],
 }

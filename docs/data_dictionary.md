@@ -6,6 +6,8 @@ fictional.
 
 ## Size by seed
 
+The manifest holds 271 rows per seed (196 GL, 75 AP) since Phase 3.
+
 | Table | Seed 1 | Seed 2 |
 | --- | --- | --- |
 | journal_entries | 14,975 | 14,975 |
@@ -65,9 +67,11 @@ entry balances. A line has a debit or a credit, never both. `memo` is UNTRUSTED.
 `approved_by`).
 
 **invoices** (`invoice_id`, `vendor_id`, `doc_number`, `txn_date`, `due_date`, `total_amt`,
-`po_id`, `site_id`, `memo`, `entered_by`, `entered_at`, `approved_by`, `approved_at`): mirrors
-the fields of a QuickBooks Online Bill. `doc_number` is the vendor's own invoice number.
-`memo` is UNTRUSTED.
+`po_id`, `site_id`, `memo`, `entered_by`, `entered_at`, `approved_by`, `approved_at`,
+`tax_amt`): mirrors the fields of a QuickBooks Online Bill. `doc_number` is the vendor's own
+invoice number. `memo` is UNTRUSTED. `tax_amt` is the sales tax the vendor charged and is
+already included in `total_amt` and in the line amounts. `site_id` is the delivery site; it
+differs from the vendor's state only for the cross-state shipments described below.
 
 **invoice_lines** (`invoice_line_id`, `invoice_id`, `line_num`, `account_id`, `amount`,
 `description`): line amounts sum to `total_amt`. `description` is UNTRUSTED.
@@ -90,6 +94,18 @@ never by an agent.
 - Vendor amount history needs at least 6 prior invoices before an amount can be called an
   outlier.
 
+## Sales and use tax (Phase 3)
+- Taxable goods are office supplies (6300) and warehouse supplies (6310). Inventory (1200) and
+  freight in (5100) are bought for resale or are part of inventory cost.
+- An in-state vendor charges the site state's base rate on taxable lines (AZ 5.6 percent, TX
+  6.25 percent, CA 7.25 percent). Local and district taxes are not modeled.
+- A cross-state shipment is an invoice whose site state differs from the vendor's state. Exactly
+  21 per seed exist: 8 planted (taxable goods, no tax charged), 5 decoys where the vendor charged
+  the destination state's tax, and 8 decoys of inventory bought for resale. They are all
+  no-PO invoices from vendors that carry no other pattern.
+- State rules the agent may cite come from `get_regulation(state, topic)`, which reads
+  `reference/regulations.json` (source URL and as-of date on every row).
+
 ## Simplifications (known, deliberate)
 - AP invoices are not linked to GL entries. AP and GL are separate populations.
 - System-source GL entries are posted during business hours, not overnight.
@@ -98,3 +114,6 @@ never by an agent.
   deliberate.
 - Invoices from one vendor are at least 8 days apart.
 - Only the last four digits of bank accounts exist.
+- Use tax exposure is small in dollars (about $30 to $520 per planted invoice), because supplies
+  are a small share of spend. It tests state-aware reasoning, not materiality.
+- Cross-state invoices keep the original entering and approving users.

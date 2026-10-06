@@ -4,6 +4,7 @@ from .dataset import Dataset
 from .gl_clean import build_clean_gl, finalize_gl
 from .gl_patterns import add_decoys, add_planted
 from .master import build_master
+from .tax import add_use_tax
 
 
 def build_clean(seed):
@@ -23,4 +24,5 @@ def build(seed):
     add_decoys(ds)
     finalize_gl(ds)
     add_ap(ds)
+    add_use_tax(ds)
     return ds

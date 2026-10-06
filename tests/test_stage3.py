@@ -19,6 +19,7 @@ EXPECTED = {
     "fixed_monthly_invoices": 1, "large_first_invoice_with_po": 1, "single_invoice_near_limit": 3,
     "volatile_vendor_in_range": 2, "verified_bank_change_large_payment": 1,
     "similar_vendor_names": 1, "injection_suppress": 5, "injection_action": 3,
+    "use_tax_exposure": 8, "cross_state_tax_charged": 5, "cross_state_resale_inventory": 8,
 }
 
 

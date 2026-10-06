@@ -48,3 +48,31 @@ Each has a reason, so none is a silent change to a locked target.
 ## Simplification
 - AP invoices are not linked to GL entries. AP and GL are separate populations, each internally
   consistent. Linking them is a stretch idea.
+
+## Phase 3 amendment (2026-10-05)
+
+**D24. One scored state-rule decision: use tax on cross-state purchases.** The plan listed three
+candidate decisions (stale checks and unclaimed property, sales versus use tax, record
+retention). Only sales versus use tax could be tested without large data changes:
+`payments` has no cleared date, and nothing in the data ages toward a purge date.
+
+Reason: with no scored state decision the README could not claim state-aware findings. One
+scored decision with decoys is a smaller and more honest claim than three unmeasured topics.
+
+What changed:
+- New column `invoices.tax_amt` (db/002_use_tax.sql). Tax is included in `total_amt`, so line
+  sums, spacing, split and duplicate tests are unchanged.
+- A post-processing step (`generator/tax.py`) edits existing no-PO invoices from vendors with no
+  other pattern. No id, amount, date or earlier manifest row changed. 21 invoices per seed
+  become cross-state shipments (8 planted, 13 decoys). Manifest rows: `use_tax_exposure`
+  (planted, severity low because the dollars are small), `cross_state_tax_charged` and
+  `cross_state_resale_inventory` (decoys).
+- Rules live in `reference/regulations.json`, not in the database, so they are versioned in git
+  with a source URL and as-of date per row.
+
+Pass means for a planted item: the agent flags it, names the destination state, cites that
+state's rule from `get_regulation`, and estimates the use tax at the state base rate (within
+$1 of `expected_use_tax` in the manifest). Pass for a decoy: no finding.
+
+Known limits: state base rates only, no local or district tax; the Texas resale and services
+rules rest on a thin source page; the dollar amounts are small.

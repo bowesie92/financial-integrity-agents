@@ -114,6 +114,20 @@ def verify(admin, agent_connect, counts):
                f"Q{q} first-digit MAD {mad:.4f} on {n:,} lines "
                f"({'planted violation' if expect_bad else 'clean'})")
 
+    no_tax = admin.execute("select count(*) from fia.invoices where tax_amt is null").fetchone()[0]
+    report(no_tax == 0, f"every invoice has tax_amt ({no_tax} missing)")
+    detected = {r[0] for r in admin.execute(
+        "select i.invoice_id from fia.invoices i join fia.vendors v using (vendor_id) "
+        "join fia.sites s on s.site_id = i.site_id where v.state <> s.state and i.tax_amt = 0 "
+        "and exists (select 1 from fia.invoice_lines l where l.invoice_id = i.invoice_id "
+        "and l.account_id in ('6300','6310'))").fetchall()}
+    planted_tax = {r[0] for r in admin.execute(
+        "select jsonb_array_elements_text(record_refs->'invoice_ids') from fia_gt.manifest "
+        "where pattern = 'use_tax_exposure'").fetchall()}
+    report(detected == planted_tax and planted_tax,
+           f"untaxed cross-state purchases of taxable goods match the manifest "
+           f"({len(detected)} found, {len(planted_tax)} planted)")
+
     checks = [
         ("je_ids", "select count(*) from (select jsonb_array_elements_text(record_refs->'je_ids') "
                    "id from fia_gt.manifest where record_refs ? 'je_ids') m "
@@ -136,6 +150,8 @@ def verify(admin, agent_connect, counts):
     agent = agent_connect()
     n_inv = agent.execute("select count(*) from fia.invoices").fetchone()[0]
     report(n_inv == counts[("fia", "invoices")][1], "agent role can read the data")
+    agent.execute("select tax_amt from fia.invoices limit 1")
+    report(True, "agent role can read tax_amt")
     for label, stmt in [("agent role cannot read ground truth", "select 1 from fia_gt.manifest"),
                         ("agent role cannot write data",
                          "insert into fia.sites values (99, 'x', 'AZ', 'America/Phoenix')"),
@@ -152,6 +168,12 @@ def verify(admin, agent_connect, counts):
 def run(seed, folder, force, admin_connect, agent_connect):
     counts = check_files(folder, seed)
     conn = admin_connect()
+    has_tax = conn.execute("select count(*) from information_schema.columns where "
+                           "table_schema='fia' and table_name='invoices' and column_name='tax_amt'"
+                           ).fetchone()[0]
+    if not has_tax:
+        raise SystemExit("fia.invoices has no tax_amt column. Apply db/002_use_tax.sql first: "
+                         "python scripts/apply_migration.py db/002_use_tax.sql")
     conn.autocommit = False
     n_findings = conn.execute("select count(*) from fia.findings").fetchone()[0]
     if n_findings and not force:
