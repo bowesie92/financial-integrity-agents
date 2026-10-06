@@ -1,0 +1,3228 @@
+{
+ "label": "seed1",
+ "generated_at": "2026-10-06T05:52:21+00:00",
+ "thresholds": {
+  "benford_mad_above": 0.015,
+  "round_min_amount": 1000,
+  "round_multiple": 1000,
+  "round_min_entries_per_month": 20,
+  "post_close": true,
+  "pairing_min_amount": 5000,
+  "pairing_history_periods": 6,
+  "exact_window_days": 30,
+  "near_window_days": 30,
+  "near_tolerance_pct": 1,
+  "split_window_days": 7,
+  "split_limit": 5000,
+  "new_vendor_max_age_days": 29,
+  "new_vendor_min_amount": 5000,
+  "po_excess_pct": 5,
+  "po_excess_dollars": 100,
+  "outlier_z": 3,
+  "outlier_min_prior": 6,
+  "bank_change_within_days": 30,
+  "bank_change_min_payment": 5000
+ },
+ "counts": {
+  "benford": 1,
+  "round_dollar": 0,
+  "timing": 48,
+  "post_close": 26,
+  "user_account_pairing": 0,
+  "exact_duplicate": 19,
+  "near_duplicate": 37,
+  "split": 5,
+  "new_vendor": 4,
+  "po_mismatch": 5,
+  "outlier": 23,
+  "bank_change": 9
+ },
+ "findings": [
+  {
+   "rule": "benford",
+   "agent": "gl_sentinel",
+   "refs": {
+    "quarter": "2025-Q3"
+   },
+   "detail": {
+    "mad": 0.022,
+    "band": "nonconforming",
+    "records": 13068,
+    "sufficient_sample": true
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-000712"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-001891"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-005541"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007277"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007316"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007408"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007610"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007658"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007659"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007660"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007661"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007871"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007919"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007920"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008158"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008707"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008708"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008709"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008948"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008949"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009079"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009166"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009210"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009256"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009956"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009999"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010149"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010150"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010248"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010293"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010384"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011406"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011607"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011754"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011978"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-012810"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-012970"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-012971"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-012972"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013029"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013746"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013960"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013961"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014164"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014316"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "after_hours"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014370"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014371"
+    ]
+   },
+   "detail": {
+    "user": "u05",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "timing",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014538"
+    ]
+   },
+   "detail": {
+    "user": "u01",
+    "flags": [
+     "weekend"
+    ]
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007905"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007910"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-007944"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008023"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-008044"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009007"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009100"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009151"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009169"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009328"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-009368"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010486"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010572"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-010755"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011683"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011686"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011745"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011772"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-011864"
+    ]
+   },
+   "detail": {
+    "user": "u01"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013051"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-013067"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014005"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014146"
+    ]
+   },
+   "detail": {
+    "user": "u08"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014227"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014974"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "post_close",
+   "agent": "gl_sentinel",
+   "refs": {
+    "je_ids": [
+     "JE-2025-014975"
+    ]
+   },
+   "detail": {
+    "user": "u07"
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000168",
+     "AP-000303"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00207",
+     "INV-00213"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-02-03",
+     "2025-03-03"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000303",
+     "AP-000456"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00213",
+     "INV-00220"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-03-03",
+     "2025-04-02"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000447",
+     "AP-000466"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0038",
+    "docs": [
+     "INV-01024",
+     "INV-01024"
+    ],
+    "amounts": [
+     "8013.83",
+     "8081.95"
+    ],
+    "dates": [
+     "2025-04-01",
+     "2025-04-03"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000456",
+     "AP-000602"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00220",
+     "INV-00228"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-04-02",
+     "2025-05-02"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000508",
+     "AP-000519"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0023",
+    "docs": [
+     "INV-01843",
+     "INV-01843"
+    ],
+    "amounts": [
+     "1502.16",
+     "1502.16"
+    ],
+    "dates": [
+     "2025-04-11",
+     "2025-04-14"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000560",
+     "AP-000576"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0110",
+    "docs": [
+     "INV-01785",
+     "INV01785"
+    ],
+    "amounts": [
+     "640.50",
+     "640.50"
+    ],
+    "dates": [
+     "2025-04-28",
+     "2025-04-29"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000591",
+     "AP-000587"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0118",
+    "docs": [
+     "001277",
+     "001277"
+    ],
+    "amounts": [
+     "1577.64",
+     "1584.74"
+    ],
+    "dates": [
+     "2025-04-30",
+     "2025-05-01"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000650",
+     "AP-000651"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0031",
+    "docs": [
+     "INV-00566",
+     "INV-00566"
+    ],
+    "amounts": [
+     "1159.23",
+     "1159.23"
+    ],
+    "dates": [
+     "2025-05-13",
+     "2025-05-13"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000733",
+     "AP-000867"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00235",
+     "INV-00236"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-06-02",
+     "2025-07-02"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000747",
+     "AP-000746"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0033",
+    "docs": [
+     "INV-00531",
+     "INV-00531"
+    ],
+    "amounts": [
+     "824.44",
+     "824.44"
+    ],
+    "dates": [
+     "2025-06-05",
+     "2025-06-06"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000789",
+     "AP-000798"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0026",
+    "docs": [
+     "INV-00643",
+     "INV-00643"
+    ],
+    "amounts": [
+     "691.02",
+     "691.02"
+    ],
+    "dates": [
+     "2025-06-16",
+     "2025-06-16"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000899",
+     "AP-000900"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0014",
+    "docs": [
+     "INV-01379",
+     "INV-01379"
+    ],
+    "amounts": [
+     "486.12",
+     "489.81"
+    ],
+    "dates": [
+     "2025-07-10",
+     "2025-07-11"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001012",
+     "AP-001182"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00245",
+     "INV-00247"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-08-04",
+     "2025-09-02"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001103",
+     "AP-001117"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0007",
+    "docs": [
+     "0377",
+     "377"
+    ],
+    "amounts": [
+     "997.17",
+     "997.17"
+    ],
+    "dates": [
+     "2025-08-19",
+     "2025-08-21"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001132",
+     "AP-001137"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0058",
+    "docs": [
+     "INV-01027",
+     "INV-01027"
+    ],
+    "amounts": [
+     "1457.19",
+     "1457.19"
+    ],
+    "dates": [
+     "2025-08-26",
+     "2025-08-26"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001140",
+     "AP-001163"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0045",
+    "docs": [
+     "000205",
+     "000205"
+    ],
+    "amounts": [
+     "264.19",
+     "264.19"
+    ],
+    "dates": [
+     "2025-08-27",
+     "2025-08-27"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001182",
+     "AP-001322"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00247",
+     "INV-00255"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-09-02",
+     "2025-10-02"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001386",
+     "AP-001400"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0029",
+    "docs": [
+     "INV-00904",
+     "INV00904"
+    ],
+    "amounts": [
+     "269.08",
+     "269.08"
+    ],
+    "dates": [
+     "2025-10-15",
+     "2025-10-17"
+    ]
+   }
+  },
+  {
+   "rule": "exact_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001466",
+     "AP-001613"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0006",
+    "docs": [
+     "INV-00263",
+     "INV-00266"
+    ],
+    "amounts": [
+     "1850.00",
+     "1850.00"
+    ],
+    "dates": [
+     "2025-11-03",
+     "2025-12-02"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000025",
+     "AP-000115"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0066",
+    "docs": [
+     "INV-00275",
+     "INV-00285"
+    ],
+    "amounts": [
+     "5089.59",
+     "5047.90"
+    ],
+    "dates": [
+     "2025-01-02",
+     "2025-01-23"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000056",
+     "AP-000092"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0094",
+    "docs": [
+     "INV-01701",
+     "INV-01704"
+    ],
+    "amounts": [
+     "4020.49",
+     "3993.97"
+    ],
+    "dates": [
+     "2025-01-08",
+     "2025-01-17"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000066",
+     "AP-000158"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0065",
+    "docs": [
+     "INV-01417",
+     "INV-01426"
+    ],
+    "amounts": [
+     "5495.76",
+     "5501.69"
+    ],
+    "dates": [
+     "2025-01-13",
+     "2025-02-04"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000071",
+     "AP-000177"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0089",
+    "docs": [
+     "INV-00323",
+     "INV-00336"
+    ],
+    "amounts": [
+     "464.28",
+     "465.26"
+    ],
+    "dates": [
+     "2025-01-14",
+     "2025-02-05"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000137",
+     "AP-000292"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0053",
+    "docs": [
+     "1977",
+     "1979"
+    ],
+    "amounts": [
+     "653.25",
+     "651.70"
+    ],
+    "dates": [
+     "2025-01-29",
+     "2025-02-28"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000153",
+     "AP-000199"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0087",
+    "docs": [
+     "0371",
+     "0373"
+    ],
+    "amounts": [
+     "5035.88",
+     "5037.46"
+    ],
+    "dates": [
+     "2025-01-31",
+     "2025-02-11"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000149",
+     "AP-000222"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0069",
+    "docs": [
+     "001158",
+     "001166"
+    ],
+    "amounts": [
+     "1912.95",
+     "1900.52"
+    ],
+    "dates": [
+     "2025-02-03",
+     "2025-02-13"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000161",
+     "AP-000310"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0060",
+    "docs": [
+     "INV-00951",
+     "INV-00963"
+    ],
+    "amounts": [
+     "437.76",
+     "440.91"
+    ],
+    "dates": [
+     "2025-02-04",
+     "2025-03-04"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000180",
+     "AP-000305"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0014",
+    "docs": [
+     "INV-01329",
+     "INV-01336"
+    ],
+    "amounts": [
+     "813.49",
+     "818.26"
+    ],
+    "dates": [
+     "2025-02-05",
+     "2025-03-03"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000190",
+     "AP-000245"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0119",
+    "docs": [
+     "0750",
+     "0759"
+    ],
+    "amounts": [
+     "513.29",
+     "510.64"
+    ],
+    "dates": [
+     "2025-02-07",
+     "2025-02-20"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000229",
+     "AP-000321"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0089",
+    "docs": [
+     "INV-00340",
+     "INV-00350"
+    ],
+    "amounts": [
+     "1108.22",
+     "1115.49"
+    ],
+    "dates": [
+     "2025-02-14",
+     "2025-03-07"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000230",
+     "AP-000277"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0029",
+    "docs": [
+     "INV-00828",
+     "INV-00831"
+    ],
+    "amounts": [
+     "306.80",
+     "309.12"
+    ],
+    "dates": [
+     "2025-02-18",
+     "2025-02-27"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000248",
+     "AP-000285"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0047",
+    "docs": [
+     "INV-01401",
+     "INV-01404"
+    ],
+    "amounts": [
+     "4457.71",
+     "4486.83"
+    ],
+    "dates": [
+     "2025-02-19",
+     "2025-02-28"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000534",
+     "AP-000640"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0089",
+    "docs": [
+     "INV-00371",
+     "INV-00387"
+    ],
+    "amounts": [
+     "545.94",
+     "546.49"
+    ],
+    "dates": [
+     "2025-04-21",
+     "2025-05-09"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000569",
+     "AP-000621"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0090",
+    "docs": [
+     "INV-01179",
+     "INV-01183"
+    ],
+    "amounts": [
+     "239.23",
+     "237.28"
+    ],
+    "dates": [
+     "2025-04-28",
+     "2025-05-08"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000728",
+     "AP-000776"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0111",
+    "docs": [
+     "INV-01394",
+     "INV-01402"
+    ],
+    "amounts": [
+     "757.91",
+     "752.10"
+    ],
+    "dates": [
+     "2025-05-30",
+     "2025-06-12"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000861",
+     "AP-000906"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0066",
+    "docs": [
+     "INV-00369",
+     "INV-00373"
+    ],
+    "amounts": [
+     "3463.42",
+     "3495.45"
+    ],
+    "dates": [
+     "2025-06-30",
+     "2025-07-10"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000884",
+     "AP-000986"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0002",
+    "docs": [
+     "1241",
+     "1250"
+    ],
+    "amounts": [
+     "291.04",
+     "289.83"
+    ],
+    "dates": [
+     "2025-07-07",
+     "2025-07-29"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000881",
+     "AP-000956"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0107",
+    "docs": [
+     "INV-00862",
+     "INV-00878"
+    ],
+    "amounts": [
+     "4733.05",
+     "4732.75"
+    ],
+    "dates": [
+     "2025-07-08",
+     "2025-07-24"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000946",
+     "AP-000997"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0068",
+    "docs": [
+     "INV-00954",
+     "INV-00957"
+    ],
+    "amounts": [
+     "3396.03",
+     "3365.26"
+    ],
+    "dates": [
+     "2025-07-18",
+     "2025-07-29"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000960",
+     "AP-001052"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0067",
+    "docs": [
+     "001766",
+     "001769"
+    ],
+    "amounts": [
+     "436.51",
+     "434.09"
+    ],
+    "dates": [
+     "2025-07-23",
+     "2025-08-07"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000965",
+     "AP-001041"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0082",
+    "docs": [
+     "INV-00320",
+     "INV-00327"
+    ],
+    "amounts": [
+     "1455.61",
+     "1441.37"
+    ],
+    "dates": [
+     "2025-07-25",
+     "2025-08-06"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001003",
+     "AP-001109"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0005",
+    "docs": [
+     "0875",
+     "0878"
+    ],
+    "amounts": [
+     "1388.02",
+     "1397.83"
+    ],
+    "dates": [
+     "2025-07-30",
+     "2025-08-19"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001070",
+     "AP-001155"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0012",
+    "docs": [
+     "0195",
+     "0204"
+    ],
+    "amounts": [
+     "1566.04",
+     "1561.75"
+    ],
+    "dates": [
+     "2025-08-14",
+     "2025-08-27"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001082",
+     "AP-001216"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0027",
+    "docs": [
+     "INV-01145",
+     "INV-01151"
+    ],
+    "amounts": [
+     "4569.89",
+     "4615.96"
+    ],
+    "dates": [
+     "2025-08-14",
+     "2025-09-09"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001083",
+     "AP-001141"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0068",
+    "docs": [
+     "INV-00967",
+     "INV-00969"
+    ],
+    "amounts": [
+     "5963.24",
+     "5924.40"
+    ],
+    "dates": [
+     "2025-08-18",
+     "2025-08-27"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001126",
+     "AP-001248"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0046",
+    "docs": [
+     "0651",
+     "0657"
+    ],
+    "amounts": [
+     "5902.76",
+     "5902.28"
+    ],
+    "dates": [
+     "2025-08-22",
+     "2025-09-15"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001210",
+     "AP-001338"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0078",
+    "docs": [
+     "INV-01000",
+     "INV-01004"
+    ],
+    "amounts": [
+     "4869.45",
+     "4913.30"
+    ],
+    "dates": [
+     "2025-09-11",
+     "2025-10-06"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001219",
+     "AP-001281"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0038",
+    "docs": [
+     "INV-01066",
+     "INV-01073"
+    ],
+    "amounts": [
+     "7676.17",
+     "7717.70"
+    ],
+    "dates": [
+     "2025-09-11",
+     "2025-09-25"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001278",
+     "AP-001395"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0078",
+    "docs": [
+     "INV-01001",
+     "INV-01009"
+    ],
+    "amounts": [
+     "5566.42",
+     "5516.37"
+    ],
+    "dates": [
+     "2025-09-23",
+     "2025-10-16"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001327",
+     "AP-001409"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0104",
+    "docs": [
+     "000845",
+     "000851"
+    ],
+    "amounts": [
+     "269.82",
+     "270.42"
+    ],
+    "dates": [
+     "2025-10-02",
+     "2025-10-22"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001329",
+     "AP-001456"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0092",
+    "docs": [
+     "INV-00560",
+     "INV-00573"
+    ],
+    "amounts": [
+     "7231.76",
+     "7289.19"
+    ],
+    "dates": [
+     "2025-10-03",
+     "2025-10-29"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001385",
+     "AP-001389"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0021",
+    "docs": [
+     "000526",
+     "000532"
+    ],
+    "amounts": [
+     "4742.14",
+     "4736.73"
+    ],
+    "dates": [
+     "2025-10-15",
+     "2025-10-16"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001391",
+     "AP-001460"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0112",
+    "docs": [
+     "0670",
+     "0679"
+    ],
+    "amounts": [
+     "356.79",
+     "357.15"
+    ],
+    "dates": [
+     "2025-10-17",
+     "2025-10-31"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001527",
+     "AP-001680"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0047",
+    "docs": [
+     "INV-01557",
+     "INV-01573"
+    ],
+    "amounts": [
+     "5479.33",
+     "5525.54"
+    ],
+    "dates": [
+     "2025-11-17",
+     "2025-12-17"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001625",
+     "AP-001677"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0108",
+    "docs": [
+     "INV-00211",
+     "INV-00217"
+    ],
+    "amounts": [
+     "1738.75",
+     "1743.34"
+    ],
+    "dates": [
+     "2025-12-08",
+     "2025-12-18"
+    ]
+   }
+  },
+  {
+   "rule": "near_duplicate",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001637",
+     "AP-001714"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0092",
+    "docs": [
+     "INV-00578",
+     "INV-00586"
+    ],
+    "amounts": [
+     "4701.07",
+     "4677.14"
+    ],
+    "dates": [
+     "2025-12-08",
+     "2025-12-24"
+    ]
+   }
+  },
+  {
+   "rule": "split",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000173",
+     "AP-000182",
+     "AP-000195"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0054",
+    "amounts": [
+     "4830.70",
+     "4980.58",
+     "4736.72"
+    ],
+    "total": "14548.00"
+   }
+  },
+  {
+   "rule": "split",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001385",
+     "AP-001389",
+     "AP-001405"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0021",
+    "amounts": [
+     "4742.14",
+     "4736.73",
+     "4947.88"
+    ],
+    "total": "14426.75"
+   }
+  },
+  {
+   "rule": "split",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000881",
+     "AP-000892",
+     "AP-000902"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0107",
+    "amounts": [
+     "4733.05",
+     "4847.89",
+     "4788.05"
+    ],
+    "total": "14368.99"
+   }
+  },
+  {
+   "rule": "split",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001240",
+     "AP-001256",
+     "AP-001257"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0099",
+    "amounts": [
+     "4975.67",
+     "4720.13",
+     "4660.00"
+    ],
+    "total": "14355.80"
+   }
+  },
+  {
+   "rule": "split",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000904",
+     "AP-000928"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0074",
+    "amounts": [
+     "361.09",
+     "4727.82"
+    ],
+    "total": "5088.91"
+   }
+  },
+  {
+   "rule": "new_vendor",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001153"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0015",
+    "amount": "29074.77",
+    "vendor_age_days": 13
+   }
+  },
+  {
+   "rule": "new_vendor",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001004"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0039",
+    "amount": "27787.43",
+    "vendor_age_days": 24
+   }
+  },
+  {
+   "rule": "new_vendor",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000386"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0004",
+    "amount": "23177.52",
+    "vendor_age_days": 12
+   }
+  },
+  {
+   "rule": "new_vendor",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000836"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0042",
+    "amount": "21140.54",
+    "vendor_age_days": 14
+   }
+  },
+  {
+   "rule": "po_mismatch",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000467"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0066",
+    "po_id": "PO-000304",
+    "invoice_amount": "5497.44",
+    "po_amount": "4594.00",
+    "po_vendor_differs": false
+   }
+  },
+  {
+   "rule": "po_mismatch",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000712"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0095",
+    "po_id": "PO-000425",
+    "invoice_amount": "3158.60",
+    "po_amount": "2697.40",
+    "po_vendor_differs": false
+   }
+  },
+  {
+   "rule": "po_mismatch",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000726"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0069",
+    "po_id": "PO-000467",
+    "invoice_amount": "2938.00",
+    "po_amount": "2413.90",
+    "po_vendor_differs": false
+   }
+  },
+  {
+   "rule": "po_mismatch",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001296"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0049",
+    "po_id": "PO-000849",
+    "invoice_amount": "3911.67",
+    "po_amount": "3160.39",
+    "po_vendor_differs": false
+   }
+  },
+  {
+   "rule": "po_mismatch",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001305"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0097",
+    "po_id": "PO-000778",
+    "invoice_amount": "3322.43",
+    "po_amount": "2637.28",
+    "po_vendor_differs": false
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000928"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0074",
+    "amount": "4727.82",
+    "z": "44.06",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001129"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0019",
+    "amount": "8870.79",
+    "z": "42.48",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001000"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0073",
+    "amount": "6293.65",
+    "z": "35.63",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000984"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0043",
+    "amount": "11992.02",
+    "z": "34.74",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001063"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0067",
+    "amount": "8548.88",
+    "z": "30.61",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001074"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0011",
+    "amount": "7897.22",
+    "z": "29.19",
+    "prior_n": 9
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000905"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0011",
+    "amount": "1267.62",
+    "z": "7.10",
+    "prior_n": 6
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000862"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0019",
+    "amount": "1227.01",
+    "z": "6.39",
+    "prior_n": 7
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001531"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0088",
+    "amount": "10262.56",
+    "z": "4.71",
+    "prior_n": 10
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000882"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0094",
+    "amount": "7039.74",
+    "z": "4.63",
+    "prior_n": 10
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001092"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0062",
+    "amount": "10939.82",
+    "z": "4.61",
+    "prior_n": 10
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000990"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0024",
+    "amount": "12227.94",
+    "z": "3.73",
+    "prior_n": 6
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000886"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0065",
+    "amount": "9499.26",
+    "z": "3.71",
+    "prior_n": 7
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001440"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0038",
+    "amount": "14152.04",
+    "z": "3.71",
+    "prior_n": 18
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000958"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0092",
+    "amount": "9573.71",
+    "z": "3.63",
+    "prior_n": 8
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000458"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0032",
+    "amount": "3972.50",
+    "z": "3.56",
+    "prior_n": 8
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001286"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0032",
+    "amount": "5061.86",
+    "z": "3.55",
+    "prior_n": 21
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000974"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0111",
+    "amount": "1323.94",
+    "z": "3.53",
+    "prior_n": 12
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001610"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0056",
+    "amount": "632.97",
+    "z": "3.47",
+    "prior_n": 8
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001030"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0088",
+    "amount": "7148.31",
+    "z": "3.45",
+    "prior_n": 6
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001713"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0014",
+    "amount": "1329.05",
+    "z": "3.39",
+    "prior_n": 22
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-000518"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0038",
+    "amount": "11866.81",
+    "z": "3.13",
+    "prior_n": 7
+   }
+  },
+  {
+   "rule": "outlier",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001264"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0111",
+    "amount": "1399.53",
+    "z": "3.06",
+    "prior_n": 16
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001019"
+    ],
+    "payment_ids": [
+     "PAY-000984"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0101",
+    "payment_amount": "6731.01",
+    "days_after_change": 17,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001062"
+    ],
+    "payment_ids": [
+     "PAY-001032"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0101",
+    "payment_amount": "6354.75",
+    "days_after_change": 25,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001180"
+    ],
+    "payment_ids": [
+     "PAY-001157"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0079",
+    "payment_amount": "7815.01",
+    "days_after_change": 9,
+    "verified": true
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001189"
+    ],
+    "payment_ids": [
+     "PAY-001180"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0024",
+    "payment_amount": "7561.31",
+    "days_after_change": 15,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001232"
+    ],
+    "payment_ids": [
+     "PAY-001183"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0024",
+    "payment_amount": "10190.94",
+    "days_after_change": 15,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001320"
+    ],
+    "payment_ids": [
+     "PAY-001273"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0093",
+    "payment_amount": "5748.33",
+    "days_after_change": 7,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001415"
+    ],
+    "payment_ids": [
+     "PAY-001388"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0093",
+    "payment_amount": "5399.76",
+    "days_after_change": 29,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001388"
+    ],
+    "payment_ids": [
+     "PAY-001353"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0092",
+    "payment_amount": "5029.01",
+    "days_after_change": 3,
+    "verified": false
+   }
+  },
+  {
+   "rule": "bank_change",
+   "agent": "ap_guardian",
+   "refs": {
+    "invoice_ids": [
+     "AP-001456"
+    ],
+    "payment_ids": [
+     "PAY-001389"
+    ]
+   },
+   "detail": {
+    "vendor_id": "V0092",
+    "payment_amount": "7289.19",
+    "days_after_change": 12,
+    "verified": false
+   }
+  }
+ ]
+}
