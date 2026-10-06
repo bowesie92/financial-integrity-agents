@@ -52,18 +52,19 @@ Single-item GL patterns are scored as detected in at least 4 of the 5 runs.
 
 ## 5. Rules-only baseline (thresholds fixed now)
 Written before the agents and run on the same data. No threshold changes after agent results exist.
+Thresholds are practical choices for a company this size, tied to the $5,000 approval limit, and are fixed now.
 - Benford: flag a quarter's expense population when first-digit MAD is above 0.015.
-- Round-dollar: flag a user with 20 or more entries ending in 000 in one month.
-- Timing: flag any entry on a weekend or outside 07:00 to 19:00 local time.
+- Round-dollar: flag a user with 20 or more entries in one month that are $1,000 or more and exact multiples of $1,000.
+- Timing: flag any entry on a weekend, a US federal holiday, or outside 07:00 to 19:00 local time.
 - Post-close: flag any entry dated after the period close date for its period.
-- User-account pairing: flag an amount of $10,000 or more posted by a user to an account class that user has not used in the prior 6 months.
-- Exact duplicate: same vendor, same amount, invoice dates within 30 days.
+- User-account pairing: flag an amount of $5,000 or more posted by a user to an account class that user has not used in the prior 6 months.
+- Exact duplicate: same vendor and same invoice number, or same vendor, same amount, and invoice dates within 30 days.
 - Near-duplicate: same vendor, amount within 1 percent, dates within 30 days.
 - Split: same vendor, two or more invoices within 7 days, each under $5,000, summing to $5,000 or more.
 - New vendor: vendor created under 30 days ago with an invoice of $5,000 or more.
-- PO mismatch: invoice exceeds its PO by more than 5 percent.
-- Outlier: amount above the vendor's mean plus 3 standard deviations.
-- Bank change: a vendor bank change within 14 days before a payment of $10,000 or more.
+- PO mismatch: invoice exceeds its PO by more than 5 percent and by more than $100.
+- Outlier: amount above the vendor mean plus 3 standard deviations, for vendors with at least 6 prior invoices.
+- Bank change: any payment of $5,000 or more made within 30 days after a vendor bank-detail change.
 Report precision, recall per pattern, and decoy clearance for baseline and agent side by side. The agent should beat the baseline on decoy clearance and match it on precision. If it does not, say so in the README.
 
 ## 6. Memo quality, graded by Cass as audit senior
