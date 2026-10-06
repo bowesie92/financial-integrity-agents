@@ -15,3 +15,5 @@ data/generated/
 runs/
 .fia_kill
 memos/
+bundle*.txt
+review_*
