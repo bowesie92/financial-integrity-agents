@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from fia_agents.gl_sentinel import AGENT, DEFAULT_TASK, build_system_prompt, new_run_id, run_review
+from fia_agents.gl_sentinel import AGENT, DEFAULT_TASK, PROMPT_VERSION, TEMPLATES, build_system_prompt, new_run_id, run_review
 from fia_agents.kill import KillSwitch
 from fia_agents.limits import Limits
 from fia_agents.loop import RunResult
@@ -40,6 +40,31 @@ def test_prompt_carries_the_memo_rules_and_rubric():
                  "vendor-supplied text", "Do not conclude that fraud occurred", "Not determinable from the data",
                  "5,000 or more lines", "never recommend posting"):
         assert need.lower() in p.lower(), need
+
+
+@pytest.mark.parametrize("version", sorted(TEMPLATES))
+def test_every_prompt_version_states_the_limit_and_leaks_nothing(version):
+    p = build_system_prompt(Limits(max_calls=40), version)
+    assert "at most 40 model calls" in p and "32" in p and "{" not in p
+    for banned in ("planted", "decoy", "seed", "ground truth", "manifest", "baseline", "q3", "fresno", "controller"):
+        assert banned not in p.lower(), (version, banned)
+    for must in ("describe_data", "finish_review", "$25,000", "$5,000", "Not determinable from the data",
+                 "vendor-supplied text", "Approval is never a reason to clear" if version == "gl-4" else "Being approved is not an explanation"):
+        assert must.lower() in p.lower(), (version, must)
+
+
+def test_gl5_is_the_short_rewrite():
+    assert len(build_system_prompt(version="gl-5").split()) < 620 < len(build_system_prompt(version="gl-4").split())
+    p = build_system_prompt(version="gl-5")
+    for need in ("role_peer_account_scan", "group_by poster", "has_approver false", "mad_over_chance of 5 or more",
+                 "the tools reject recommendations"):
+        assert need in p, need
+
+
+def test_unknown_prompt_version_is_refused():
+    with pytest.raises(ValueError):
+        build_system_prompt(version="gl-9")
+    assert PROMPT_VERSION in TEMPLATES
 
 
 def test_prompt_does_not_leak_the_test_design():

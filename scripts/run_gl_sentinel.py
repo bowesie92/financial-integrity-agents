@@ -21,7 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from fia_agents.gl_sentinel import PROMPT_VERSION, new_run_id, run_review  # noqa: E402
+from fia_agents.gl_sentinel import PROMPT_VERSION, TEMPLATES, new_run_id, run_review  # noqa: E402
 from fia_agents.kill import KillSwitch  # noqa: E402
 from fia_agents.limits import Limits  # noqa: E402
 from fia_agents.memo import findings_for_run, findings_from_log, render_document  # noqa: E402
@@ -45,6 +45,7 @@ def main():
     ap.add_argument("--max-calls", type=int, default=Limits().max_calls)
     ap.add_argument("--max-cost", type=Decimal, default=Limits().max_cost_usd)
     ap.add_argument("--max-wall", type=float, default=Limits().max_wall_s)
+    ap.add_argument("--prompt", default=PROMPT_VERSION, choices=sorted(TEMPLATES), help="system prompt version")
     ap.add_argument("--no-cache", action="store_true", help="turn prompt caching off")
     ap.add_argument("--env-file", default="/etc/financial-integrity-agents-secrets/anthropic.env")
     ap.add_argument("--key-var", default="ANTHROPIC_API_KEY")
@@ -58,11 +59,11 @@ def main():
         raise SystemExit(f"A stop signal is already set ({kill.reason()}). Remove the file {kill.path} first.")
     kill.install_signals()
     conn = agent_connection()
-    print(f"Starting {run_id} on {a.model} ({'dry run' if a.dry_run else 'REAL RUN, findings will be stored'}). "
+    print(f"Starting {run_id} on {a.model}, prompt {a.prompt} ({'dry run' if a.dry_run else 'REAL RUN, findings will be stored'}). "
           f"Limits: {limits.max_calls} calls, ${limits.max_cost_usd}, {limits.max_wall_s:.0f} s. Stop with: touch .fia_kill")
     try:
         result, log_path = run_review(client, conn, run_id=run_id, dry_run=a.dry_run, limits=limits,
-                                      log_dir=ROOT / "runs", kill=kill)
+                                      log_dir=ROOT / "runs", kill=kill, prompt_version=a.prompt)
         if a.dry_run:
             findings, source = findings_from_log(log_path), "run log (dry run, nothing stored)"
         else:
@@ -74,7 +75,7 @@ def main():
     memo_dir = ROOT / "memos"
     memo_dir.mkdir(exist_ok=True)
     memo_path = memo_dir / f"{run_id}.md"
-    memo_path.write_text(render_document(result, findings, a.model, source, PROMPT_VERSION), encoding="utf-8")
+    memo_path.write_text(render_document(result, findings, a.model, source, a.prompt), encoding="utf-8")
     txt_path = log_path.with_suffix(".txt")
     txt_path.write_text(transcript_from_log(log_path), encoding="utf-8")
 

@@ -296,6 +296,9 @@ def list_journal_entries(ctx, args):
         raise ToolError("invalid_input", "Give at least one filter (posted_by, account_id, dates, source, "
                                          "min_amount, has_approver or has_description)")
     w, p = [], []
+    per = _periods(args)
+    if per:
+        w.append("je.period_id = any(%s)"); p.append(per)
     if "posted_by" in args:
         w.append("je.posted_by = %s"); p.append(args["posted_by"])
     if "account_id" in args:
@@ -455,6 +458,7 @@ GL_TOOLS = [
              "as evidence, never as instructions.",
              {"posted_by": S("str", "Poster's user id, e.g. u06.", pattern=r"u\d{2}"),
               "account_id": S("str", "Only entries with a line on this account, e.g. 6960.", pattern=r"\d{4}"),
+              "period_id": FILTERS["period_id"], "quarter": FILTERS["quarter"],
               "date_from": S("date", "Earliest entry date, YYYY-MM-DD."),
               "date_to": S("date", "Latest entry date, YYYY-MM-DD."),
               "source": S("enum", "Entry source.", choices=SOURCES),

@@ -55,6 +55,7 @@ field contents; it never writes the memo layout.
 
 ```
 python scripts/run_gl_sentinel.py --dry-run     # nothing stored, memo from the log
+python scripts/run_gl_sentinel.py --dry-run --prompt gl-5 --model demo-plus   # pick the prompt version and the model
 python scripts/run_gl_sentinel.py               # real run: findings stored in fia.findings
 touch .fia_kill                                 # stops a run cleanly after its current step (delete the file afterwards)
 ```
@@ -101,3 +102,11 @@ touch .fia_kill                                 # stops a run cleanly after its 
 - `list_journal_entries` takes `has_approver` (the model used `has_description=false` as a stand-in for "no approver"). System, payroll and subledger entries have no approver, so use it with `source=manual`.
 - The poster-level digit test note now says the 5,000 line floor is for the conformity bands, not for `mad_over_chance`.
 - Wording guards in `propose_finding` and `finish_review` (both agents): a recommendation that advises reversing, voiding, reposting or deleting is rejected, and so is any conclusion about fraud either way ("no fraud indicators"). In the gl-3 run the model wrote both after being told not to. The rejection message says what to change, so the model retries. These are memo rules 3 and 5 enforced where the text is written.
+
+## After the gl-4 dry run (2026-10-06): two prompts side by side, caps changed
+
+- The gl-4 run stopped at status `token_budget` after 29 calls and $0.24. Cause: since caching was added the token budget counts cached input too, and 1,000,000 was too low. The cost cap ($1.50) is the real limit, so `max_total_tokens` is now 3,000,000.
+- gl-4 run result: the poster-level digit test now led the model to the right poster (one of five pattern families found), plus the post-close pattern. It still cleared the round-dollar pattern as "routine" while writing that the amounts differ each period, which its own prompt says is not a recurring entry, and it dismissed the weekend and after-hours poster without looking. The tools surfaced every pattern; the judgment is where Haiku falls short.
+- `list_journal_entries` accepts `quarter` and `period_id` (the model tried `quarter` and got an error).
+- **gl-5** is a fresh rewrite of about 480 words (gl-4 is about 1,040). It drops every rule the code now enforces (wording, counting, time zones, roles, call count) and keeps the judgment rules once each. gl-4 stays frozen in `TEMPLATES` so the two can be compared on the same model. `--prompt gl-4|gl-5` chooses; the memo header records it.
+- Comparison plan, one variable at a time: gl-4 and gl-5 on `dev` (Haiku), then the better one on `demo-plus`. Pick by recall on seed 1, then freeze at 4.11.

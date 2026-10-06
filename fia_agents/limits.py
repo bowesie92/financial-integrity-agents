@@ -11,7 +11,7 @@ from decimal import Decimal
 @dataclass(frozen=True)
 class Limits:
     max_calls: int = 40                      # model calls, including a retry after a truncated reply
-    max_total_tokens: int = 1_000_000        # input plus output, summed over every call
+    max_total_tokens: int = 3_000_000        # input (cached and not) plus output, summed over every call; cost is the main cap
     max_cost_usd: Decimal | None = Decimal("1.50")
     max_wall_s: float = 900.0
     max_output_tokens: int = 4096            # per call; doubled once if a reply is cut off

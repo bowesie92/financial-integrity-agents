@@ -267,3 +267,10 @@ def test_has_approver_filter_finds_the_unapproved_manual_entries(ctx):
     assert sm["matching_entries"] == sm["no_approver"] == 25
     assert {p["user_id"] for p in sm["posters"]} == {"u07", "u08"}
     assert run(ctx, "list_journal_entries", has_approver=True, posted_by="u07")["summary"]["no_approver"] == 0
+
+
+def test_list_entries_accepts_quarter_and_period(ctx):
+    q = run(ctx, "list_journal_entries", posted_by="u06", quarter="2025-Q3")
+    assert q["summary"]["matching_entries"] == 575
+    assert q["summary"]["entry_dates"][0] >= "2025-07-01" and q["summary"]["entry_dates"][1] <= "2025-09-30"
+    assert run(ctx, "list_journal_entries", posted_by="u06", period_id="2025-07")["summary"]["matching_entries"] < 575
