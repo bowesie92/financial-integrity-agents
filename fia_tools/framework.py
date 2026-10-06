@@ -49,7 +49,7 @@ class Param:
             if self.max is not None:
                 s["maxLength"] = int(self.max)
             if self.pattern:
-                s["pattern"] = self.pattern
+                s["pattern"] = f"^(?:{self.pattern})$"
         elif self.kind == "int":
             s = {"type": "integer"}
             if self.min is not None:

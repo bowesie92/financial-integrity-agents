@@ -1,0 +1,36 @@
+# Phase 4 amendments to docs/tools.md
+
+Recorded 2026-10-05 while building the tool layer (task 4.3). docs/tools.md stays the design
+record; where the code differs, this file is the reason and the code is the rule.
+
+1. **Output budget covers the whole envelope.** Principle 6 says 6,000 characters of JSON. The
+   limit applies to the entire envelope the model receives, so the result is cut at 5,600
+   characters to leave room for `ok`, `row_count`, `truncated` and `notes`. Rows are dropped one
+   at a time, so as many as fit are kept.
+2. **`get_records` shows lines inline.** Journal entries show up to 20 gl lines and invoices show
+   their invoice lines, so one call gives the whole record. Vendor name and address are labeled
+   untrusted.
+3. **`propose_finding` requires `cause` and `effect`.** The model may write "Not determinable
+   from the data". Evidence items are `{table, id, note?}` and every item is checked for
+   existence before the insert. A dry-run flag on the tool context rolls the insert back, for tests.
+4. **`round_dollar_scan`:** `min_amount` here is the smallest round amount that counts (default
+   1,000) and does not filter the population, because the shared filter would otherwise make
+   every share meaningless. Results show round entries and round lines, since each entry has a
+   debit line and a credit line.
+5. **`timing_scan` rule definitions.** weekend and holiday use the poster's local date;
+   after_hours is any local time outside 07:00 to 19:00; post_close is a local posting date after
+   the period's close date; last_3_days_of_period is a posting date within the last three
+   calendar days of the entry's period. Entry-level filters (`account_class`, `min_amount`) match
+   entries that have at least one qualifying line.
+6. **`user_account_profile` gained a role-peer comparison and an optional `period_id`.** Reason:
+   the planted unusual-posting pattern (an AP clerk posting to fixed assets from the first
+   month) can never look "new" under a six-month lookback, so the spec's tool could not surface
+   it. The tool now also lists accounts the user posts to that no one else in the same role
+   posts to, rarest first, with the share of the user's lines. With `period_id` it also lists the
+   period's lines on classes and on accounts not used in the prior six periods. Without
+   `period_id` it profiles the whole year and lists nothing as new.
+7. **`list_journal_entries` needs at least one filter**, so an aimless call cannot sample the
+   first 50 entries by accident. `min_amount` applies to the entry's total debits.
+8. **Benford populations** use GL lines with an amount of at least $1.00. Bands are Nigrini's
+   published MAD ranges (below 0.006 close, to 0.012 acceptable, to 0.015 marginal, above 0.015
+   nonconforming). The 5,000-record floor applies to both the first-digit and first-two-digit tests.

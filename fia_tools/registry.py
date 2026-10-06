@@ -1,8 +1,8 @@
 """Which tools each agent gets. GL and AP tools are added in later bundles."""
 from .framework import Registry
+from .gl import GL_TOOLS
 from .shared import SHARED_TOOLS
 
-GL_TOOLS = []
 AP_TOOLS = []
 
 
