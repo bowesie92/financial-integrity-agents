@@ -1,0 +1,49 @@
+"""A generated dataset: table rows plus the ground-truth manifest. Written to CSV by write_csv."""
+import csv
+import random
+from pathlib import Path
+
+# Column order for each table, matching db/001_schema.sql (identity columns are left out so
+# the database assigns them).
+COLUMNS = {
+    "sites": ["site_id", "name", "state", "timezone"],
+    "users": ["user_id", "full_name", "role", "site_id", "active"],
+    "accounts": ["account_id", "name", "account_class", "active"],
+    "periods": ["period_id", "start_date", "end_date", "close_date"],
+    "journal_entries": ["je_id", "period_id", "entry_date", "posted_at", "posted_by",
+                        "approved_by", "source", "description", "site_id"],
+    "gl_lines": ["je_id", "account_id", "site_id", "debit", "credit", "memo"],
+    "vendors": ["vendor_id", "name", "address", "city", "state", "postal_code",
+                "created_at", "created_by", "active"],
+}
+
+
+class Dataset:
+    def __init__(self, seed):
+        self.seed = seed
+        self.tables = {name: [] for name in COLUMNS}
+        self.manifest = []   # rows for fia_gt.manifest, written by later stages
+        self.meta = {}       # helper facts later stages need (not written to the database)
+
+    def rng(self, name):
+        """An independent, repeatable random stream per module, derived from the seed."""
+        return random.Random(f"fia:{self.seed}:{name}")
+
+
+def _cell(value):
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return value
+
+
+def write_csv(ds, outdir):
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    for table, cols in COLUMNS.items():
+        with open(outdir / f"{table}.csv", "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(cols)
+            for row in ds.tables[table]:
+                w.writerow([_cell(row.get(c)) for c in cols])

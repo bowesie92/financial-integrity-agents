@@ -11,3 +11,4 @@ __pycache__/
 # run output
 data/runs/
 *.log
+data/generated/
