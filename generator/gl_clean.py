@@ -1,5 +1,6 @@
 """Clean general ledger: balanced entries posted by people who stick to their own accounts,
 during local business hours, with amounts that follow Benford's law."""
+import math
 from datetime import date
 
 from . import config as C
@@ -94,14 +95,29 @@ def _day_pool():
     return pools
 
 
+def benford_amount_between(rng, low, high):
+    """Log-uniform amount between low and high (still Benford-shaped inside that range)."""
+    return f"{10 ** rng.uniform(math.log10(low), math.log10(high)):.2f}"
+
+
+def make_draft(poster, day, hour, minute, second, pairs, source, desc, approver,
+               tag=None, posted_day=None, memo=None):
+    """One journal entry before ids are assigned. pairs = [(debit_acct, credit_acct, amount)].
+    day is the entry date; posted_day (default: day) is the local date it was actually posted."""
+    site = SITE_OF[poster]
+    return {"day": day, "poster": poster, "source": source, "site": site, "pairs": pairs,
+            "approver": approver, "desc": desc, "tag": tag, "memo": memo,
+            "posted_at": to_utc_iso(posted_day or day, hour, minute, second, TZ_OF_SITE[site])}
+
+
 def build_clean_gl(ds):
     rng = ds.rng("gl_clean")
     profiles = build_profiles(ds)
     ds.meta["profiles"] = profiles
+    ds.meta.setdefault("drafts", [])
     pools = _day_pool()
     srcs = [s for s, _ in _SOURCE_WEIGHTS]
     src_w = [w for _, w in _SOURCE_WEIGHTS]
-    drafts = []
     for _ in range(C.N_CLEAN_JES):
         source = rng.choices(srcs, weights=src_w)[0]
         if source == "manual":
@@ -113,19 +129,48 @@ def build_clean_gl(ds):
         days, month_end = pools[rng.randrange(12)]
         day = rng.choice(month_end) if rng.random() < 0.25 else rng.choice(days)
         hour = C.BUSINESS_START_HOUR + rng.choices(range(12), weights=_HOUR_WEIGHTS)[0]
-        site = SITE_OF[poster]
-        posted_at = to_utc_iso(day, hour, rng.randrange(60), rng.randrange(60), TZ_OF_SITE[site])
         pairs = []
         for _ in range(rng.choice([1, 2])):
             d_acct = _pick(rng, profiles[poster]["debit"])
             c_acct = _pick(rng, profiles[poster]["credit"], exclude=d_acct)
             pairs.append((d_acct, c_acct, benford_amount(rng)))
         total = sum(float(a) for _, _, a in pairs)
-        drafts.append({"day": day, "posted_at": posted_at, "poster": poster, "source": source,
-                       "site": site, "pairs": pairs,
-                       "approver": _approver(rng, poster, total),
-                       "desc": rng.choice(_DESC[source])})
-    drafts.sort(key=lambda d: d["posted_at"])
+        ds.meta["drafts"].append(make_draft(
+            poster, day, hour, rng.randrange(60), rng.randrange(60), pairs, source,
+            rng.choice(_DESC[source]), _approver(rng, poster, total)))
+
+
+# What each tagged pattern means for scoring. Benford is one item (a whole quarter); every
+# other pattern is one manifest row per journal entry.
+MANIFEST_INFO = {
+    "benford_violation": ("planted", "high",
+        "Run the first-digit test per quarter, find 2025-Q3 nonconforming, trace it to the "
+        "manual accrual entries by one user, and propose a finding."),
+    "round_dollar_cluster": ("planted", "medium",
+        "Flag round-dollar entries clustered at quarter end by one user in a seldom-used account."),
+    "after_hours_postings": ("planted", "medium",
+        "Flag a weekend or night posting, judged in the poster's local time."),
+    "post_close_thin_description": ("planted", "high",
+        "Flag an entry posted after the period closed, with little or no description."),
+    "unusual_user_account": ("planted", "high",
+        "Flag a user posting to an account they have never used, above the $5,000 floor."),
+    "recurring_identical_entries": ("decoy", None,
+        "Clear: identical monthly rent and payroll entries are expected."),
+    "controller_month_end_weekend": ("decoy", None,
+        "Clear: the controller works weekends around month end."),
+    "fresno_local_hours": ("decoy", None,
+        "Clear: inside Fresno's local business hours even if it looks late elsewhere."),
+    "post_close_cfo_approved": ("decoy", None,
+        "Clear: post-close adjustment with a full description and documented CFO approval."),
+}
+_GROUPED = {"benford_violation"}
+
+
+def finalize_gl(ds):
+    """Sort all drafts by posting time, assign ids, write journal entries and lines, and
+    build the ground-truth manifest."""
+    drafts = sorted(ds.meta["drafts"], key=lambda d: d["posted_at"])
+    grouped = {}
     for i, d in enumerate(drafts, start=1):
         je_id = f"JE-{C.YEAR}-{i:06d}"
         ds.tables["journal_entries"].append({
@@ -133,10 +178,25 @@ def build_clean_gl(ds):
             "entry_date": d["day"].isoformat(), "posted_at": d["posted_at"],
             "posted_by": d["poster"], "approved_by": d["approver"], "source": d["source"],
             "description": d["desc"], "site_id": d["site"]})
-        for d_acct, c_acct, amt in d["pairs"]:
+        for k, (d_acct, c_acct, amt) in enumerate(d["pairs"]):
+            memo = d["memo"] if (d["memo"] and k == 0) else ACCT_NAME[d_acct]
             ds.tables["gl_lines"].append({"je_id": je_id, "account_id": d_acct,
                                           "site_id": d["site"], "debit": amt, "credit": "0.00",
-                                          "memo": ACCT_NAME[d_acct]})
+                                          "memo": memo})
             ds.tables["gl_lines"].append({"je_id": je_id, "account_id": c_acct,
                                           "site_id": d["site"], "debit": "0.00", "credit": amt,
                                           "memo": None})
+        if d["tag"]:
+            if d["tag"] in _GROUPED:
+                grouped.setdefault(d["tag"], []).append(je_id)
+            else:
+                _manifest(ds, d["tag"], {"je_ids": [je_id]})
+    for tag, ids in grouped.items():
+        _manifest(ds, tag, {"je_ids": ids, "quarter": "2025-Q3"})
+
+
+def _manifest(ds, tag, refs):
+    kind, severity, expected = MANIFEST_INFO[tag]
+    ds.manifest.append({"kind": kind, "agent": "gl_sentinel", "pattern": tag,
+                        "severity": severity, "expected_behavior": expected,
+                        "record_refs": refs})

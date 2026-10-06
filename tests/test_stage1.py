@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from generator import config as C
-from generator.build import build
+from generator.build import build_clean as build
 from generator.stats import first_digit_mad
 
 SEEDS = [1, 2]
@@ -36,7 +36,7 @@ def test_different_seeds_differ():
 def test_volumes(ds):
     t = ds.tables
     assert len(t["journal_entries"]) == C.N_CLEAN_JES
-    assert 43_000 <= len(t["gl_lines"]) <= 47_000
+    assert 41_000 <= len(t["gl_lines"]) <= 47_000
     assert len(t["vendors"]) == C.N_VENDORS
     assert len(ds.meta["new_vendor_ids"]) == C.N_NEW_VENDORS_2025
 

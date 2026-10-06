@@ -1,5 +1,6 @@
 """A generated dataset: table rows plus the ground-truth manifest. Written to CSV by write_csv."""
 import csv
+import json
 import random
 from pathlib import Path
 
@@ -16,6 +17,9 @@ COLUMNS = {
     "vendors": ["vendor_id", "name", "address", "city", "state", "postal_code",
                 "created_at", "created_by", "active"],
 }
+
+MANIFEST_COLUMNS = ["seed", "kind", "agent", "pattern", "severity", "expected_behavior",
+                    "record_refs"]
 
 
 class Dataset:
@@ -47,3 +51,9 @@ def write_csv(ds, outdir):
             w.writerow(cols)
             for row in ds.tables[table]:
                 w.writerow([_cell(row.get(c)) for c in cols])
+    with open(outdir / "manifest.csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(MANIFEST_COLUMNS)
+        for m in ds.manifest:
+            w.writerow([ds.seed, m["kind"], m["agent"], m["pattern"], _cell(m["severity"]),
+                        m["expected_behavior"], json.dumps(m["record_refs"], sort_keys=True)])

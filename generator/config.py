@@ -7,7 +7,7 @@ AS_OF = date(2026, 1, 31)
 
 N_VENDORS = 120
 N_NEW_VENDORS_2025 = 12      # vendors created during 2025, the pool for "new vendor" tests
-N_CLEAN_JES = 14_900         # random everyday entries; recurring entries are added on top
+N_CLEAN_JES = 14_400         # random everyday entries; planted and recurring entries come on top
 BUSINESS_START_HOUR = 7      # local time, inclusive
 BUSINESS_END_HOUR = 19       # local time, exclusive
 
