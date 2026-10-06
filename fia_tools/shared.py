@@ -1,5 +1,7 @@
 """Tools both agents use: describe_data, get_records, propose_finding, finish_review,
 get_regulation. Descriptions and inputs follow docs/tools.md."""
+import re
+
 import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row
@@ -134,7 +136,27 @@ def _check_evidence(conn, evidence):
                 raise ToolError("not_found", f"evidence item {i} does not exist: {table} {raw}")
 
 
+ACTION_WORDS = re.compile(r"\b(revers\w*|void\w*|re-?post\w*|delet\w*|write[- ]?offs?|post(?:ing)? a (?:correcting|reversing))\b", re.I)
+FRAUD_CONCLUSION = re.compile(r"\bno (?:evidence of |signs? of |indications? of )?fraud|\bfraud indicators?\b(?! (?:to|that))", re.I)
+
+
+def _check_wording(**fields):
+    """The memo rules, enforced where the text is written: recommendations are investigative only, and
+    no conclusion about fraud either way. The message tells the model what to change."""
+    rec = fields.pop("recommendation", None)
+    if rec and ACTION_WORDS.search(rec):
+        raise ToolError("invalid_input", "The recommendation must be investigative only (obtain support, review the "
+                        "approval, ask the poster, extend testing). Remove any advice to reverse, void, repost or delete, "
+                        "and call the tool again.")
+    for name, text in fields.items():
+        if text and FRAUD_CONCLUSION.search(text):
+            raise ToolError("invalid_input", f"'{name}' states a conclusion about fraud. Describe what the records "
+                            "showed instead, and do not say that no fraud indicators were found.")
+
+
 def propose_finding(ctx, args):
+    _check_wording(recommendation=args["recommendation"], title=args["title"], finding_condition=args["finding_condition"],
+                   cause=args["cause"], effect=args["effect"])
     _check_evidence(ctx.conn, args["evidence"])
     ev = [{"table": e["table"], "id": e["id"].strip(), **({"note": clean_untrusted(e["note"])} if "note" in e else {})}
           for e in args["evidence"]]
@@ -159,6 +181,7 @@ def propose_finding(ctx, args):
 
 # ---- finish_review ---------------------------------------------------------------------------
 def finish_review(ctx, args):
+    _check_wording(summary=args["summary"])
     ctx.finished = True
     ctx.finish = {"summary": args["summary"], "checked": args["checked"], "not_checked": args.get("not_checked", [])}
     return {"finished": True}

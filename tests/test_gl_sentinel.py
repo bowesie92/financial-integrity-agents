@@ -173,3 +173,10 @@ def test_prompt_gl3_rules():
                  "Do not finish early", "limited to 2,000 characters", "unless a record says so",
                  "Do not write that no fraud indicators were found"):
         assert need in p, need
+
+
+def test_prompt_gl4_rules():
+    p = build_system_prompt()
+    for need in ("role_peer_account_scan", "mad_over_chance of 5 or more", "Do not dismiss a signal for sample size alone",
+                 "same description and the same amount", "Amounts that differ each period are not a recurring entry"):
+        assert need in p, need

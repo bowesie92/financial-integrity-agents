@@ -248,3 +248,22 @@ def test_tool_results_show_the_call_count_when_the_loop_sets_it(ctx):
         assert REG.run(ctx, "gl_population_profile", {"reason": R})["model_calls"] == "7 of 40 used"
     finally:
         ctx.calls_used = ctx.calls_allowed = 0
+
+
+# ---- role peer scan, approver filter ---------------------------------------------------------
+def test_role_peer_scan_lists_accounts_only_one_user_in_a_role_posts_to(ctx):
+    r = run(ctx, "role_peer_account_scan")
+    assert 0 < len(r["rows"]) <= 30
+    assert all(x["users_in_role"] >= 2 for x in r["rows"])
+    assert any(x["user_id"] == "u11" and x["account_id"] == "1500" for x in r["rows"])
+    assert [x["share_of_user_lines"] for x in r["rows"]] == sorted(x["share_of_user_lines"] for x in r["rows"])
+    q = run(ctx, "role_peer_account_scan", quarter="2025-Q3")
+    assert q["population"] == {"quarter": "2025-Q3"}
+
+
+def test_has_approver_filter_finds_the_unapproved_manual_entries(ctx):
+    r = run(ctx, "list_journal_entries", has_approver=False, source="manual")
+    sm = r["summary"]
+    assert sm["matching_entries"] == sm["no_approver"] == 25
+    assert {p["user_id"] for p in sm["posters"]} == {"u07", "u08"}
+    assert run(ctx, "list_journal_entries", has_approver=True, posted_by="u07")["summary"]["no_approver"] == 0

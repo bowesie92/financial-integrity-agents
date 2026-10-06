@@ -128,8 +128,9 @@ def _benford_by_poster(ctx, args):
     return {"population": _pop_label(f), "group_by": "poster", "rows": out[:10], "posters_tested": len(out),
             "note": f"Posters with at least {MIN_POSTER_LINES} lines, ranked by mad_over_chance: their first-digit MAD divided "
                     "by the MAD a Benford-conforming sample of that size would show by chance. About 1 is normal; well above "
-                    "2 deserves a look. A poster's sample is under 5,000 lines, so this is descriptive: read the poster's "
-                    "entries before proposing anything."}
+                    "2 deserves a look, and 5 or more is far beyond chance at any sample size. The 5,000 line floor applies to the "
+                    "conformity bands, not to this ratio. Read the poster's entries, then propose it unless the records give a "
+                    "routine explanation."}
 
 
 def benford_first_two_digits(ctx, args):
@@ -290,10 +291,10 @@ def user_account_profile(ctx, args):
 
 # ---- list_journal_entries --------------------------------------------------------------------
 def list_journal_entries(ctx, args):
-    filt = {k: v for k, v in args.items() if k != "has_description"}
-    if not filt and "has_description" not in args:
+    filt = {k: v for k, v in args.items() if k not in ("has_description", "has_approver")}
+    if not filt and "has_description" not in args and "has_approver" not in args:
         raise ToolError("invalid_input", "Give at least one filter (posted_by, account_id, dates, source, "
-                                         "min_amount or has_description)")
+                                         "min_amount, has_approver or has_description)")
     w, p = [], []
     if "posted_by" in args:
         w.append("je.posted_by = %s"); p.append(args["posted_by"])
@@ -306,6 +307,8 @@ def list_journal_entries(ctx, args):
         w.append("je.entry_date <= %s"); p.append(args["date_to"])
     if "source" in args:
         w.append("je.source = %s"); p.append(args["source"])
+    if "has_approver" in args:
+        w.append("je.approved_by is not null" if args["has_approver"] else "je.approved_by is null")
     if "has_description" in args:
         w.append("(coalesce(btrim(je.description), '') <> '')" if args["has_description"]
                  else "(coalesce(btrim(je.description), '') = '')")
@@ -364,6 +367,33 @@ def _entry_summary(rows):
                     "Rows show posting time in the poster's local time."}
 
 
+# ---- role_peer_account_scan ------------------------------------------------------------------
+def role_peer_account_scan(ctx, args):
+    per = _periods(args)
+    pw, p = ("and je.period_id = any(%s)", [per]) if per else ("", [])
+    rows = query(ctx.conn, f"""
+        with ul as (
+          select je.posted_by as u, l.account_id, count(*) as lines, count(distinct l.je_id) as entries
+          from fia.gl_lines l join fia.journal_entries je on je.je_id = l.je_id
+          where true {pw} group by 1, 2),
+        tot as (select u, sum(lines) as t from ul group by u),
+        ru as (select us.role, ul.account_id, count(distinct ul.u) as users_using
+               from ul join fia.users us on us.user_id = ul.u group by 1, 2),
+        rn as (select role, count(*) as n from fia.users group by role)
+        select ul.u as user_id, us.role, us.site_id, ul.account_id, a.name, a.account_class, ul.lines, ul.entries,
+               round(ul.lines::numeric / tot.t, 4) as share_of_user_lines, rn.n as users_in_role
+        from ul join fia.users us on us.user_id = ul.u join fia.accounts a on a.account_id = ul.account_id
+             join tot on tot.u = ul.u join ru on ru.role = us.role and ru.account_id = ul.account_id
+             join rn on rn.role = us.role
+        where ru.users_using = 1 and rn.n >= 2
+        order by share_of_user_lines, ul.u, ul.account_id limit 31""", p)
+    return {"population": _pop_label(args), "rows": rows[:30], "more_available": len(rows) > 30,
+            "note": "Accounts that exactly one user in a role posts to while at least one other user holds the same role, "
+                    "rarest first (smallest share of that user's lines). Roles held by one user are skipped. A site-specific "
+                    "account can appear here for a routine reason: check the account name, class and the user's site, then "
+                    "read the entries."}
+
+
 # ---- registration ----------------------------------------------------------------------------
 def _f(**extra):
     return {**FILTERS, **extra}
@@ -410,6 +440,12 @@ GL_TOOLS = [
               "period_id": S("str", "Period to examine, e.g. 2025-07. Leave out to profile the whole year.",
                              pattern=r"\d{4}-\d{2}")},
              user_account_profile),
+    ToolSpec("role_peer_account_scan",
+             "Across all users at once: accounts that only one user in a role posts to, while others in the same role "
+             "do not, rarest first with the account's name and class, line and entry counts and the share of that "
+             "user's lines. Use it to find users posting to accounts or classes unusual for their role without "
+             "profiling every user. Filter by period_id or quarter.",
+             {"period_id": FILTERS["period_id"], "quarter": FILTERS["quarter"]}, role_peer_account_scan),
     ToolSpec("list_journal_entries",
              "List up to 50 journal entries with line totals, oldest posting first, with posting time in the poster's local "
              "time. The summary counts and sums ALL matching entries (entries, total, round-thousand entries, local "
@@ -423,6 +459,7 @@ GL_TOOLS = [
               "date_to": S("date", "Latest entry date, YYYY-MM-DD."),
               "source": S("enum", "Entry source.", choices=SOURCES),
               "min_amount": S("number", "Smallest total debits.", min=0),
-              "has_description": S("bool", "true: only entries with a description; false: only entries without.")},
+              "has_description": S("bool", "true: only entries with a description; false: only entries without."),
+              "has_approver": S("bool", "true: only entries with an approver; false: only entries with no approver at all. System, payroll and subledger entries carry no approver, so combine false with source manual.")},
              list_journal_entries),
 ]

@@ -126,3 +126,29 @@ def test_agent_role_really_is_read_only(agent_conn):
                  "select 1 from fia_gt.manifest", "select 1 from fia.finding_reviews"):
         with pytest.raises(psycopg.errors.InsufficientPrivilege):
             agent_conn.execute(stmt)
+
+
+# ---- wording guards (memo rules enforced where the text is written) ---------------------------
+def test_wording_patterns():
+    from fia_tools.shared import ACTION_WORDS, FRAUD_CONCLUSION
+    for bad in ("Require the poster to reverse and repost the entries", "Void the entries", "Delete the duplicates",
+                "Consider posting a correcting entry"):
+        assert ACTION_WORDS.search(bad), bad
+    for ok in ("Obtain support and review the approval", "Ask the poster why the entries were posted after close"):
+        assert not ACTION_WORDS.search(ok), ok
+    for bad in ("No fraud indicators were detected", "There is no evidence of fraud"):
+        assert FRAUD_CONCLUSION.search(bad), bad
+    assert not FRAUD_CONCLUSION.search("This does not conclude that fraud occurred.")
+
+
+def test_propose_finding_rejects_action_advice_and_fraud_conclusions(ctx):
+    e = run(ctx, "propose_finding", **{**FINDING, "recommendation": "Have the poster reverse and repost the entries."})
+    assert e["error"]["code"] == "invalid_input" and "investigative only" in e["error"]["message"]
+    e = run(ctx, "propose_finding", **{**FINDING, "effect": "No fraud indicators were found in this population."})
+    assert e["error"]["code"] == "invalid_input" and "fraud" in e["error"]["message"]
+    assert run(ctx, "propose_finding", **FINDING)["ok"] is True
+
+
+def test_finish_review_rejects_a_fraud_conclusion(ctx):
+    base = {"summary": "Reviewed the ledger. No fraud indicators were detected.", "checked": ["digit tests"]}
+    assert run(ctx, "finish_review", **base)["error"]["code"] == "invalid_input"
