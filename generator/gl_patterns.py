@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from . import config as C
 from .calendar_util import business_days, is_business_day, month_bounds, nth_business_day_after
-from .gl_clean import (ACCT_CLASS, _HOUR_WEIGHTS, _approver, benford_amount,
+from .gl_clean import (ACCT_CLASS, _DESC, _HOUR_WEIGHTS, _approver, benford_amount,
                        benford_amount_between, make_draft)
 
 # Fabricated amounts lean on first digits 5 to 9, the way invented numbers tend to.
@@ -45,7 +45,7 @@ def add_planted(ds):
         total = sum(float(a) for _, _, a in pairs)
         drafts.append(make_draft("u06", rng.choice(q3), _hour(rng), rng.randrange(60),
                                  rng.randrange(60), pairs, "manual",
-                                 rng.choice(["Quarterly accrual", "Accrual true-up"]),
+                                 rng.choice(_DESC["manual"]),
                                  _approver(rng, "u06", total), tag="benford_violation"))
 
     # 2. Round-dollar cluster: u03, last two business days of each quarter end, account 6960.
@@ -55,7 +55,7 @@ def add_planted(ds):
             amt = f"{1000 * rng.randint(2, 24):.2f}"
             drafts.append(make_draft("u03", rng.choice(last_two), _hour(rng), rng.randrange(60),
                                      rng.randrange(60), [("6960", "2100", amt)], "manual",
-                                     "Special project accrual", _approver(rng, "u03", float(amt)),
+                                     rng.choice(_DESC["manual"]), _approver(rng, "u03", float(amt)),
                                      tag="round_dollar_cluster"))
 
     # 3. Weekend and after-hours postings by u05 (Phoenix), July to December, local time.
@@ -73,7 +73,7 @@ def add_planted(ds):
         acct = rng.choice(_expense_debits(ds, "u05"))
         amt = benford_amount(rng)
         drafts.append(make_draft("u05", day, hour, rng.randrange(60), rng.randrange(60),
-                                 [(acct, "2100", amt)], "manual", "Adjusting entry",
+                                 [(acct, "2100", amt)], "manual", rng.choice(_DESC["manual"]),
                                  _approver(rng, "u05", float(amt)), tag="after_hours_postings"))
 
     # 4. Post-close entries, thin or no description: u07 (15) and u08 (10), periods Jun to Dec.
@@ -98,7 +98,7 @@ def add_planted(ds):
         credit = rng.choice(["2000", "1000"])
         drafts.append(make_draft("u11", rng.choice(days), _hour(rng), rng.randrange(60),
                                  rng.randrange(60), [("1500", credit, amt)], "ap_subledger",
-                                 "Vendor invoice posting", _approver(rng, "u11", float(amt)),
+                                 rng.choice(_DESC["ap_subledger"]), _approver(rng, "u11", float(amt)),
                                  tag="unusual_user_account"))
 
 
@@ -113,11 +113,12 @@ def add_decoys(ds):
     rng = ds.rng("gl_decoys")
     drafts = ds.meta["drafts"]
 
-    # Identical monthly rent (u05, controller approves) and semi-monthly payroll (system, CFO).
+    # Identical monthly rent (system schedule, controller approves) and semi-monthly payroll
+    # (system, CFO).
     for month in range(1, 13):
         first = business_days(*month_bounds(C.YEAR, month))[0]
-        drafts.append(make_draft("u05", first, 9, 15, 0, [("6100", "1000", "18000.00")],
-                                 "manual", "Monthly rent, Phoenix HQ and warehouse",
+        drafts.append(make_draft(C.SYSTEM_USER, first, 9, 15, 0, [("6100", "1000", "18000.00")],
+                                 "system", "Monthly rent, Phoenix HQ and warehouse",
                                  C.CONTROLLER, tag="recurring_identical_entries"))
         for day in (15, 31):
             drafts.append(make_draft(
@@ -135,7 +136,7 @@ def add_decoys(ds):
         acct = rng.choice(_expense_debits(ds, "u01"))
         drafts.append(make_draft("u01", day, rng.randint(8, 16), rng.randrange(60),
                                  rng.randrange(60), [(acct, "2100", amt)], "manual",
-                                 "Month-end close adjustments", _approver(rng, "u01", float(amt)),
+                                 rng.choice(_DESC["manual"]), _approver(rng, "u01", float(amt)),
                                  tag="controller_month_end_weekend"))
 
     # Fresno staff accountant u09 posts at 18:xx local, four of them on Fridays. In UTC or
@@ -146,7 +147,7 @@ def add_decoys(ds):
         amt = benford_amount(rng)
         acct = rng.choice(_expense_debits(ds, "u09"))
         drafts.append(make_draft("u09", day, 18, rng.randint(5, 55), rng.randrange(60),
-                                 [(acct, "2100", amt)], "manual", "Adjusting entry",
+                                 [(acct, "2100", amt)], "manual", rng.choice(_DESC["manual"]),
                                  _approver(rng, "u09", float(amt)), tag="fresno_local_hours"))
 
     # One post-close adjustment with a full description and documented CFO approval.

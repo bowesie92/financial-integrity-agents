@@ -24,6 +24,7 @@ EXPECTED = {
 @pytest.fixture(scope="module", params=[1, 2])
 def ds(request):
     d = build(request.param)
+    d.manifest = [m for m in d.manifest if m["agent"] == "gl_sentinel"]
     d.je = {j["je_id"]: j for j in d.tables["journal_entries"]}
     d.lines = defaultdict(list)
     for ln in d.tables["gl_lines"]:
@@ -175,7 +176,7 @@ def test_unusual_user_account(ds):
 
 def test_recurring_decoys_are_identical(ds):
     ids = refs(ds, "recurring_identical_entries")
-    rent = [i for i in ids if ds.je[i]["source"] == "manual"]
+    rent = [i for i in ids if any(ln["account_id"] == "6100" for ln in ds.lines[i])]
     pay = [i for i in ids if ds.je[i]["source"] == "payroll"]
     assert len(rent) == 12 and len(pay) == 24
     assert len({tuple(sorted((ln["account_id"], ln["debit"], ln["credit"])
