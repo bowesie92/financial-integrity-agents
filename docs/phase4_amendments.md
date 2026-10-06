@@ -34,3 +34,30 @@ record; where the code differs, this file is the reason and the code is the rule
 8. **Benford populations** use GL lines with an amount of at least $1.00. Bands are Nigrini's
    published MAD ranges (below 0.006 close, to 0.012 acceptable, to 0.015 marginal, above 0.015
    nonconforming). The 5,000-record floor applies to both the first-digit and first-two-digit tests.
+9. **`vendor_profile`: `matches_employee_address` is always null.** The dataset holds no employee
+   addresses, so the check cannot be run. The result says so rather than guessing. The PO box flag
+   is a text match on the vendor address.
+10. **`find_duplicate_invoices`.** Both modes pair invoices from one vendor within `window_days`.
+    exact: same document number (ignoring case) and same amount. near: same document number with
+    an amount within the tolerance (percent of the larger amount), or the same amount with a variant
+    document number (hyphens or zero padding ignored), or the same amount with a different document
+    number. Each pair says which, and whether each invoice was paid. The third type will also
+    return a vendor that legitimately bills a flat amount every month; clearing that is the
+    agent's job.
+11. **`find_split_groups`.** Invoices under `limit_amount` are grouped per vendor, greedily: a group
+    is every invoice within `window_days` of its first invoice. A group needs at least two
+    invoices and a sum at or above the limit. It lists who entered and approved them. A stray pair
+    that happens to cross the limit can appear; the amounts show whether it is "just under".
+12. **`po_match_check`** compares the sum of all invoices on a PO with the PO amount (invoice totals
+    include tax). It also lists invoices whose PO belongs to another vendor, because the manifest
+    expects that to be flagged, and summarizes invoices with no PO (count, total, largest 15)
+    instead of listing all of them.
+13. **`bank_change_payments`** joins a change to payments on that vendor's invoices made on or
+    after the change and within `within_days`. `paid_to_new_account` is null for checks, which
+    carry no bank digits.
+14. **`amount_outliers`** is upward only and compares each invoice with the same vendor's earlier
+    invoices (sample standard deviation). It will also flag some ordinary vendors with a wide
+    range at z of 3 to 5; the rules-only baseline sees exactly the same list.
+15. **`new_vendor_large_invoices`**: vendor age is invoice date minus the vendor's creation date.
+    Every invoice in this data carries an approver, so "approval present" is always true; the
+    tool therefore also shows the approver's role and the approver the amount required.

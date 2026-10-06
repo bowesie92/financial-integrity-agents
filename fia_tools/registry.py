@@ -1,9 +1,8 @@
 """Which tools each agent gets. GL and AP tools are added in later bundles."""
 from .framework import Registry
+from .ap import AP_TOOLS
 from .gl import GL_TOOLS
 from .shared import SHARED_TOOLS
-
-AP_TOOLS = []
 
 
 def build_registry(agent):
