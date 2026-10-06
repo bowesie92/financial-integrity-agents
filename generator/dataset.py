@@ -16,6 +16,15 @@ COLUMNS = {
     "gl_lines": ["je_id", "account_id", "site_id", "debit", "credit", "memo"],
     "vendors": ["vendor_id", "name", "address", "city", "state", "postal_code",
                 "created_at", "created_by", "active"],
+    "vendor_bank_changes": ["vendor_id", "changed_at", "changed_by", "old_last4", "new_last4",
+                            "verified_by", "verification_note"],
+    "purchase_orders": ["po_id", "vendor_id", "site_id", "po_date", "amount", "requested_by",
+                        "approved_by"],
+    "invoices": ["invoice_id", "vendor_id", "doc_number", "txn_date", "due_date", "total_amt",
+                 "po_id", "site_id", "memo", "entered_by", "entered_at", "approved_by",
+                 "approved_at"],
+    "invoice_lines": ["invoice_id", "line_num", "account_id", "amount", "description"],
+    "payments": ["payment_id", "invoice_id", "paid_at", "amount", "bank_last4", "method"],
 }
 
 MANIFEST_COLUMNS = ["seed", "kind", "agent", "pattern", "severity", "expected_behavior",

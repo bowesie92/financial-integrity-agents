@@ -1,4 +1,5 @@
 """Build a full dataset for one seed. Later stages add more steps here."""
+from .ap import add_ap
 from .dataset import Dataset
 from .gl_clean import build_clean_gl, finalize_gl
 from .gl_patterns import add_decoys, add_planted
@@ -21,4 +22,5 @@ def build(seed):
     add_planted(ds)
     add_decoys(ds)
     finalize_gl(ds)
+    add_ap(ds)
     return ds
