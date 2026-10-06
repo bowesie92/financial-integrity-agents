@@ -48,6 +48,7 @@ field contents; it never writes the memo layout.
 | Version | Date | Change |
 |---|---|---|
 | gl-1 | 2026-10-06 | First version |
+| gl-3 | 2026-10-06 | After the gl-2 dry run (post-close pattern found; round-dollar and timing patterns cleared because 'approved'; Benford claim traced to the wrong account; wrapped up at call 19 believing it was at 26; summary over 2,000 characters wasted a call): approval is never a reason to clear, no attribution without a test for that poster or account, no invented business reasons, do not finish early, call count shown in every tool result, 2,000 character limit stated, digit test by poster, no 'no fraud indicators' wording |
 | gl-2 | 2026-10-06 | After the first dry run (one of five pattern families found, wrong counts, UTC read as local time, approval treated as clearance): a coverage list a to e, an approval rule, DATA RULES (quote tool summaries, local times, roles from tools), call planning, per-family coverage in finish_review |
 
 ## How to run
@@ -87,3 +88,9 @@ touch .fia_kill                                 # stops a run cleanly after its 
 - Prompt caching is on for real runs (`--no-cache` turns it off). One breakpoint goes on the last block of the last message, so each call re-reads the earlier history at 0.1x the input price; cache writes cost 1.25x. Source: platform.claude.com prompt caching page, checked 2026-10-06. Haiku 4.5 needs at least 4,096 tokens before anything is cached; shorter prompts are not cached and no error is returned. Cost, token budget and the run log now count cache tokens.
 - The provisional cost cap is now $1.50 (was $1.00). Measure the real figure after the first cached run, then set the cap.
 - Known tool gap, not fixed: a first-digit deviation can be seen by quarter but not traced to a poster, because the digit tests do not group by user. Decide at 4.9 from the evaluation numbers whether to add that.
+
+## Tool changes made after the gl-2 dry run (2026-10-06)
+
+- `benford_first_digit` takes `group_by: poster`. It ranks posters (300 lines or more) by `mad_over_chance`: the poster's first-digit MAD divided by the MAD a Benford-conforming sample of that size would show by chance (`analytics.mad_noise`). About 1 is normal. On seed 1 the deviating poster scores above 20 in Q3 and no poster scores above 2 in Q1, so the model is not told who to look at.
+- Every line-level tool now accepts `posted_by` and `account_id` (the model tried `account_id` on `round_dollar_scan` and got an error).
+- Every tool result carries `model_calls: "N of M used"` when the loop sets it. This is one line in `loop.py`, before the tools run: `ctx.calls_used, ctx.calls_allowed = state.calls, limits.max_calls`. The tool-result message is still tool_result blocks only. Reason: in the gl-2 run the model said it had used 26 calls when it had used 19, and wrapped up early.

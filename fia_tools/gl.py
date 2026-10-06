@@ -21,6 +21,8 @@ FILTERS = {
     "source": S("enum", "Only entries from this source.", choices=SOURCES),
     "site_id": S("int", "Only this site (1 Phoenix, 2 Dallas, 3 Fresno).", min=1, max=99),
     "min_amount": S("number", "Only lines (or entries having a line) of at least this amount.", min=0),
+    "posted_by": S("str", "Only entries posted by this user, e.g. u06.", pattern=r"u\d{2}"),
+    "account_id": S("str", "Only lines on this account, e.g. 6960.", pattern=r"\d{4}"),
 }
 
 
@@ -49,6 +51,10 @@ def _line_where(f, extra=()):
         w.append("l.site_id = %s"); p.append(f["site_id"])
     if "min_amount" in f:
         w.append(f"{AMT} >= %s"); p.append(f["min_amount"])
+    if "posted_by" in f:
+        w.append("je.posted_by = %s"); p.append(f["posted_by"])
+    if "account_id" in f:
+        w.append("l.account_id = %s"); p.append(f["account_id"])
     return (" and ".join(w) or "true"), p
 
 
@@ -89,11 +95,41 @@ def _digit_counts(ctx, f, width):
 
 
 def benford_first_digit(ctx, args):
+    if args.get("group_by") == "poster":
+        return _benford_by_poster(ctx, args)
     out = A.first_digit_stats(_digit_counts(ctx, args, 1))
     out["population"] = _pop_label(args)
     out["note"] = ("Amounts of at least $1.00. MAD bands are Nigrini's: under 0.006 close, to 0.012 acceptable, "
                    "to 0.015 marginal, above 0.015 nonconforming. A small or narrow population can deviate by chance.")
     return out
+
+
+MIN_POSTER_LINES = 300
+
+
+def _benford_by_poster(ctx, args):
+    f = {k: v for k, v in args.items() if k != "group_by"}
+    where, p = _line_where(f, [f"{AMT} >= 1"])
+    rows = query(ctx.conn, f"""
+        select je.posted_by as poster, left(replace({AMT}::text, '.', ''), 1)::int as d, count(*) as n
+        from {LINE_FROM} where {where} group by 1, 2""", p)
+    by = {}
+    for r in rows:
+        by.setdefault(r["poster"], {})[r["d"]] = r["n"]
+    out = []
+    for poster, counts in by.items():
+        st = A.first_digit_stats(counts)
+        if st["n"] < MIN_POSTER_LINES:
+            continue
+        noise = A.mad_noise(st["n"])
+        out.append({"poster": poster, "lines": st["n"], "mad": st["mad"], "chance_mad": round(noise, 4),
+                    "mad_over_chance": round(st["mad"] / noise, 2)})
+    out.sort(key=lambda r: (-r["mad_over_chance"], r["poster"]))
+    return {"population": _pop_label(f), "group_by": "poster", "rows": out[:10], "posters_tested": len(out),
+            "note": f"Posters with at least {MIN_POSTER_LINES} lines, ranked by mad_over_chance: their first-digit MAD divided "
+                    "by the MAD a Benford-conforming sample of that size would show by chance. About 1 is normal; well above "
+                    "2 deserves a look. A poster's sample is under 5,000 lines, so this is descriptive: read the poster's "
+                    "entries before proposing anything."}
 
 
 def benford_first_two_digits(ctx, args):
@@ -153,8 +189,12 @@ def _je_where(f):
         w.append("je.source = %s"); p.append(f["source"])
     if "site_id" in f:
         w.append("je.site_id = %s"); p.append(f["site_id"])
-    if "account_class" in f or "min_amount" in f:
+    if "posted_by" in f:
+        w.append("je.posted_by = %s"); p.append(f["posted_by"])
+    if "account_class" in f or "min_amount" in f or "account_id" in f:
         inner, ip = ["l.je_id = je.je_id"], []
+        if "account_id" in f:
+            inner.append("l.account_id = %s"); ip.append(f["account_id"])
         if "account_class" in f:
             inner.append("a.account_class = %s"); ip.append(f["account_class"])
         if "min_amount" in f:
@@ -337,7 +377,10 @@ GL_TOOLS = [
     ToolSpec("benford_first_digit",
              "First-digit Benford test on GL line amounts of at least $1: observed and expected share per digit, "
              "mean absolute deviation (MAD), conformity band, and whether the sample is large enough. Use whole "
-             "quarters; subsets under 5,000 records are descriptive only.", _f(), benford_first_digit),
+             "quarters; subsets under 5,000 records are descriptive only. With group_by poster it instead ranks posters by how far "
+             "their own digit distribution is from Benford, beyond what chance would give for their sample size.",
+             _f(group_by=S("enum", "Set to poster to rank posters instead of testing the whole population.", choices=("poster",))),
+             benford_first_digit),
     ToolSpec("benford_first_two_digits",
              "First-two-digit Benford test: the digit pairs with the largest z-statistics, with observed and "
              "expected counts and whether each is in excess or deficit. Use it to see which digits drive a "

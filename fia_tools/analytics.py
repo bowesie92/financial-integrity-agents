@@ -60,6 +60,16 @@ def first_digit_stats(counts):
             "sufficient_sample": n >= MIN_BENFORD_SAMPLE, "minimum_sample": MIN_BENFORD_SAMPLE}
 
 
+def mad_noise(n):
+    """Mean absolute deviation expected from chance alone for a sample of n amounts that follow Benford's
+    law exactly. Small samples deviate more, so a poster's MAD is judged against this, not against the
+    whole-population bands."""
+    if n <= 0:
+        return None
+    return sum(math.sqrt(2 / math.pi) * math.sqrt(p * (1 - p) / n)
+               for p in FIRST_DIGIT_EXPECTED.values()) / 9
+
+
 def first_two_stats(counts, top=10):
     """counts: {pair: n} for pairs 10 to 99. Ranks pairs by absolute z-statistic (with continuity
     correction) and says whether each is in excess or deficit."""

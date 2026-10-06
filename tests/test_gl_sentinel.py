@@ -162,6 +162,14 @@ def test_real_run_findings_are_read_back_from_the_database(agent_conn):
 
 def test_prompt_requires_coverage_and_approval_checks():
     p = build_system_prompt()
-    for need in ("Cover every test family", "An approval alone never clears an entry", "DATA RULES",
+    for need in ("Cover every test family", "Approval is never a reason to clear anything", "DATA RULES",
                  "Never convert time zones yourself", "each test family a to e"):
+        assert need in p, need
+
+
+def test_prompt_gl3_rules():
+    p = build_system_prompt()
+    for need in ("Approval is never a reason to clear anything", "group_by poster", "do not count yourself",
+                 "Do not finish early", "limited to 2,000 characters", "unless a record says so",
+                 "Do not write that no fraud indicators were found"):
         assert need in p, need

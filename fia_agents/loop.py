@@ -119,6 +119,7 @@ def run_agent(client, registry, ctx, system, task, limits=None, log=None, kill=N
             messages.append(reply.assistant_message())
 
         if stop_reason == "tool_use":
+            ctx.calls_used, ctx.calls_allowed = state.calls, limits.max_calls   # shown to the model in each tool result
             results = []
             for call in reply.tool_calls:
                 if kill.is_set():

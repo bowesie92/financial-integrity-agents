@@ -217,3 +217,34 @@ def test_list_entries_summary_covers_all_matches_with_roles_and_local_time(ctx):
     assert {a["role"] for a in sm["approvers"]} >= {"controller"}
     assert sum(a["entries"] for a in sm["approvers"]) == sm["matching_entries"]
     assert all("posted_at" not in x and x["posted_local"][-3:].isalpha() for x in r["rows"])
+
+
+# ---- poster-level Benford, drill-down filters, call counter -----------------------------------
+def test_benford_by_poster_separates_the_deviating_poster(ctx):
+    q3 = run(ctx, "benford_first_digit", quarter="2025-Q3", group_by="poster")
+    assert q3["rows"][0]["poster"] == "u06" and q3["rows"][0]["mad_over_chance"] > 10
+    assert all(r["lines"] >= 300 for r in q3["rows"])
+    q1 = run(ctx, "benford_first_digit", quarter="2025-Q1", group_by="poster")
+    assert q1["rows"][0]["mad_over_chance"] < 4          # a quarter with nothing planted stays near chance
+
+
+def test_chance_mad_shrinks_with_sample_size():
+    assert A.mad_noise(1000) > A.mad_noise(10000) > 0 and A.mad_noise(0) is None
+
+
+def test_posted_by_and_account_filters_reach_every_line_tool(ctx):
+    r = run(ctx, "round_dollar_scan", account_id="6960", group_by="user")
+    assert r["rows"][0]["group"] == "u03" and r["rows"][0]["round_lines"] >= 60
+    t = run(ctx, "timing_scan", rule="after_hours", posted_by="u05")
+    assert t["flagged_entries"] == 20 and t["rows"][0]["group"] == "u05"
+    p = run(ctx, "gl_population_profile", posted_by="u03", account_id="6960")
+    assert p["entry_count"] == 62
+
+
+def test_tool_results_show_the_call_count_when_the_loop_sets_it(ctx):
+    assert "model_calls" not in REG.run(ctx, "gl_population_profile", {"reason": R})
+    ctx.calls_used, ctx.calls_allowed = 7, 40
+    try:
+        assert REG.run(ctx, "gl_population_profile", {"reason": R})["model_calls"] == "7 of 40 used"
+    finally:
+        ctx.calls_used = ctx.calls_allowed = 0

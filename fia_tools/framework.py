@@ -204,6 +204,8 @@ class ToolContext:
     dry_run: bool = False      # propose_finding inserts, then rolls back
     finished: bool = False
     finish: dict | None = None
+    calls_used: int = 0        # model calls made so far, set by the loop before each tool turn
+    calls_allowed: int = 0     # the run's call limit (0 = not set, as in unit tests)
 
 
 class Registry:
@@ -306,8 +308,11 @@ def run_tool(registry, ctx, name, args):
         raw = spec.handler(ctx, clean)
         notes = list(raw.pop("_notes", [])) if isinstance(raw, dict) else []
         result, truncated, more = bound(raw)
-        return {"ok": True, "result": result, "row_count": _row_count(result),
-                "truncated": truncated, "notes": notes + more}
+        env = {"ok": True, "result": result, "row_count": _row_count(result),
+               "truncated": truncated, "notes": notes + more}
+        if ctx.calls_allowed:
+            env["model_calls"] = f"{ctx.calls_used} of {ctx.calls_allowed} used"
+        return env
     except ToolError as e:
         return fail(e.code, e.message)
     except psycopg.errors.QueryCanceled:
