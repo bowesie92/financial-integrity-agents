@@ -146,7 +146,8 @@ def test_payment_action_patterns():
     from fia_tools.shared import PAYMENT_ACTIONS
     for bad in ("Stop the payment to this vendor", "Hold payment until support is received", "Recall the duplicate payment",
                 "Block the vendor", "Recover the overpayment", "Freeze the vendor account", "Suspend further payments",
-                "Claw back the duplicate invoice amount"):
+                "Claw back the duplicate invoice amount", "Place vendors on hold and escalate",
+                "Put the vendor account on hold", "Keep these payments on hold until support arrives"):
         assert PAYMENT_ACTIONS.search(bad), bad
     for ok in ("Obtain the purchase order and review the approval", "Ask the approver why both invoices were paid",
                "Obtain the callback record for the bank change", "Extend testing to the vendor's other invoices",

@@ -138,7 +138,8 @@ def _check_evidence(conn, evidence):
 
 ACTION_WORDS = re.compile(r"\b(revers\w*|void\w*|re-?post\w*|delet\w*|write[- ]?offs?|post(?:ing)? a (?:correcting|reversing))\b", re.I)
 PAYMENT_ACTIONS = re.compile(r"\b(?:stop|hold|block|cancel|recall|freeze|suspend|claw\w*[- ]back|recover|deactivat\w*)\w*\s+(?:\w+\s+){0,2}"
-                             r"(?:payments?|vendors?|invoices?|overpayments?)\b", re.I)
+                             r"(?:payments?|vendors?|invoices?|overpayments?)\b"
+                             r"|\b(?:place|put|keep|set)\s+(?:\w+\s+){0,4}on\s+hold\b", re.I)
 FRAUD_CONCLUSION = re.compile(r"\bno (?:evidence of |signs? of |indications? of )?fraud|\bfraud indicators?\b(?! (?:to|that))", re.I)
 
 
