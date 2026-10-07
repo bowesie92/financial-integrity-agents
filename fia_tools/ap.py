@@ -1,12 +1,16 @@
 """AP Guardian tools: fixed parameterized queries over invoices, vendors, purchase orders, payments
 and bank changes. Free text from vendors comes back as untrusted_* fields only."""
+from decimal import Decimal
+
 from . import constants as K
 from .db import query
+from .regulation import base_rate
 from .framework import Param, ToolError, ToolSpec, label_untrusted
 
 S = Param
 SCOPE = S("str", "A vendor id such as V0042, or 'all' (default).", pattern=r"all|V\d{4}", default="all")
-DOC_NORM = "ltrim(regexp_replace(upper(btrim({})), '[^A-Z0-9]', '', 'g'), '0')"
+CROSS_STATE_PAGE = 12     # invoices per cross_state_invoices call, so a page fits the 6,000 character envelope
+DOC_NORM ="ltrim(regexp_replace(upper(btrim({})), '[^A-Z0-9]', '', 'g'), '0')"
 
 
 def _scope(args, col="i.vendor_id"):
@@ -242,6 +246,40 @@ def new_vendor_large_invoices(ctx, args):
     return {"max_vendor_age_days": age, "min_amount": floor, "rows": out, "more_available": len(rows) > 50}
 
 
+# ---- cross_state_invoices --------------------------------------------------------------------
+def cross_state_invoices(ctx, args):
+    sw, sp = _scope(args)
+    offset = args.get("offset", 0)
+    rows = query(ctx.conn, f"""
+        select i.invoice_id, i.vendor_id, v.state as vendor_state, s.state as destination_state, i.site_id,
+               i.txn_date, i.total_amt, i.tax_amt as tax_charged, i.po_id,
+               coalesce(sum(l.amount) filter (where l.account_id = any(%s)), 0) as taxable_amount,
+               coalesce(sum(l.amount) filter (where l.account_id = any(%s)), 0) as resale_amount
+        from fia.invoices i join fia.vendors v on v.vendor_id = i.vendor_id
+             join fia.sites s on s.site_id = i.site_id
+             left join fia.invoice_lines l on l.invoice_id = i.invoice_id
+        where v.state <> s.state and {sw}
+        group by i.invoice_id, v.state, s.state
+        order by i.txn_date, i.invoice_id limit 500""", [list(K.TAXABLE_ACCOUNTS), list(K.RESALE_ACCOUNTS), *sp])
+    names = query(ctx.conn, "select account_id, name from fia.accounts where account_id = any(%s) order by account_id",
+                  [list(K.TAXABLE_ACCOUNTS + K.RESALE_ACCOUNTS)])
+    page = rows[offset:offset + CROSS_STATE_PAGE]
+    for r in page:
+        rate = base_rate(r["destination_state"])
+        r["destination_base_rate"] = rate
+        r["tax_at_base_rate_on_taxable_lines"] = (r["taxable_amount"] * rate).quantize(Decimal("0.01")) if rate is not None else None
+    return {"total_matching": len(rows), "offset": offset, "rows": page,
+            "more_available": offset + CROSS_STATE_PAGE < len(rows),
+            "taxable_accounts": {n["account_id"]: n["name"] for n in names if n["account_id"] in K.TAXABLE_ACCOUNTS},
+            "resale_accounts": {n["account_id"]: n["name"] for n in names if n["account_id"] in K.RESALE_ACCOUNTS},
+            "note": f"{CROSS_STATE_PAGE} invoices per call; pass offset to see the next page. Invoices whose vendor is in a "
+                    "different state from the receiving site. taxable_amount is the sum of lines on the taxable accounts "
+                    "and resale_amount the sum on the resale accounts; tax_charged is the tax the vendor charged. "
+                    "tax_at_base_rate_on_taxable_lines is taxable_amount times the destination state base rate, an "
+                    "estimate for comparison with tax_charged, not a conclusion. Use get_regulation for the state's rule, "
+                    "its source and its as-of date. State base rates only; not legal advice."}
+
+
 # ---- registration ----------------------------------------------------------------------------
 def _scoped(**extra):
     return {"scope": SCOPE, **extra}
@@ -302,4 +340,10 @@ AP_TOOLS = [
              {"max_vendor_age_days": S("int", "Vendor age in days at invoice date (default 30).", min=0, max=365, default=30),
               "min_amount": S("number", "Smallest invoice in dollars (default 5000).", min=0, default=5000)},
              new_vendor_large_invoices),
+    ToolSpec("cross_state_invoices",
+             "Invoices from a vendor in a different state than the receiving site, with the taxable and resale line "
+             "totals, the tax the vendor charged, and the tax at the destination state's base rate on the taxable "
+             "lines. Facts and an estimate only; get_regulation gives the rule, its source and its date.",
+             _scoped(offset=S("int", "Rows to skip, to read the next page (12 invoices per call).", min=0, max=500, default=0)),
+             cross_state_invoices),
 ]

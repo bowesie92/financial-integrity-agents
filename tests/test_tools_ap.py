@@ -27,7 +27,7 @@ def test_registry_matches_the_spec():
     assert REG.names() == ["describe_data", "get_records", "propose_finding", "finish_review", "get_regulation",
                            "vendor_profile", "vendor_invoice_history", "find_duplicate_invoices",
                            "find_split_groups", "po_match_check", "bank_change_payments", "amount_outliers",
-                           "new_vendor_large_invoices"]
+                           "new_vendor_large_invoices", "cross_state_invoices"]
 
 
 # ---- duplicates ------------------------------------------------------------------------------
@@ -183,7 +183,65 @@ def test_every_ap_result_fits_the_budget(apctx):
              ("find_duplicate_invoices", {"mode": "near", "window_days": 365}),
              ("find_split_groups", {"window_days": 60}), ("po_match_check", {"min_excess_pct": 0, "min_excess_amount": 0}),
              ("bank_change_payments", {"min_payment": 0, "within_days": 180}), ("amount_outliers", {"z_threshold": 0}),
-             ("new_vendor_large_invoices", {"max_vendor_age_days": 365, "min_amount": 0})]
+             ("new_vendor_large_invoices", {"max_vendor_age_days": 365, "min_amount": 0}),
+             ("cross_state_invoices", {})]
     for name, a in calls:
         env = REG.run(apctx, name, {"reason": R, **a})
         assert env["ok"] and len(envelope_json(env)) <= MAX_CHARS, name
+
+
+# ---- cross_state_invoices (use tax, D24 and D26) ------------------------------------------------
+def all_cross_state(ctx):
+    """Every page of cross_state_invoices; each page must fit the envelope without being cut."""
+    rows, offset = [], 0
+    while True:
+        env = REG.run(ctx, "cross_state_invoices", {"reason": R, "offset": offset})
+        assert env["ok"], env
+        assert not env["truncated"], "a page of cross_state_invoices must fit the 6,000 character envelope"
+        rows += env["result"]["rows"]
+        if not env["result"]["more_available"]:
+            return rows, env["result"]
+        offset += len(env["result"]["rows"])
+
+
+def test_cross_state_invoices_lists_every_cross_state_invoice(apctx):
+    """Seed 1 holds exactly 21: 8 taxable with no tax charged, 5 where tax was charged, 8 bought for resale."""
+    rows, last = all_cross_state(apctx)
+    total = apctx.conn.execute("""select count(*) from fia.invoices i join fia.vendors v on v.vendor_id = i.vendor_id
+                                  join fia.sites s on s.site_id = i.site_id where v.state <> s.state""").fetchone()[0]
+    assert total == 21 and last["total_matching"] == 21 and len(rows) == 21
+    assert len({r["invoice_id"] for r in rows}) == 21 and all(r["vendor_state"] != r["destination_state"] for r in rows)
+    untaxed = [r for r in rows if float(r["taxable_amount"]) > 0 and float(r["tax_charged"]) == 0]
+    charged = [r for r in rows if float(r["taxable_amount"]) > 0 and float(r["tax_charged"]) > 0]
+    resale = [r for r in rows if float(r["taxable_amount"]) == 0 and float(r["resale_amount"]) > 0]
+    assert (len(untaxed), len(charged), len(resale)) == (8, 5, 8)
+    assert last["taxable_accounts"] and last["resale_accounts"]
+
+
+def test_cross_state_estimate_uses_the_destination_base_rate(apctx):
+    from decimal import Decimal, ROUND_HALF_UP
+    from fia_tools.regulation import base_rate
+    rows = [r for r in all_cross_state(apctx)[0] if float(r["taxable_amount"]) > 0]
+    assert rows
+    for r in rows:
+        rate = base_rate(r["destination_state"])
+        assert rate is not None and abs(float(r["destination_base_rate"]) - float(rate)) < 1e-9
+        want = (Decimal(str(r["taxable_amount"])) * rate).quantize(Decimal("0.01"), ROUND_HALF_UP)
+        assert abs(Decimal(str(r["tax_at_base_rate_on_taxable_lines"])) - want) <= Decimal("0.01")
+
+
+def test_cross_state_scope_and_note(apctx):
+    env = REG.run(apctx, "cross_state_invoices", {"reason": R})
+    assert "get_regulation" in env["result"]["note"] and "not a conclusion" in env["result"]["note"]
+    assert env["result"]["offset"] == 0 and env["result"]["more_available"] and len(env["result"]["rows"]) == 12
+    vendor = env["result"]["rows"][0]["vendor_id"]
+    one = run(apctx, "cross_state_invoices", scope=vendor)["rows"]
+    assert one and all(r["vendor_id"] == vendor for r in one)
+    assert REG.run(apctx, "cross_state_invoices", {"reason": R, "scope": "bob"})["error"]["code"] == "invalid_input"
+
+
+def test_base_rate_reads_the_reference_file():
+    from decimal import Decimal
+    from fia_tools.regulation import base_rate
+    assert base_rate("AZ") == Decimal("0.056") and base_rate("tx") == Decimal("0.0625") and base_rate("CA") == Decimal("0.0725")
+    assert base_rate("NV") is None and base_rate(None) is None

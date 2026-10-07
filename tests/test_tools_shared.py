@@ -141,6 +141,24 @@ def test_wording_patterns():
     assert not FRAUD_CONCLUSION.search("This does not conclude that fraud occurred.")
 
 
+def test_payment_action_patterns():
+    """AP recommendations: stopping, holding, recalling or recovering a payment is off limits too."""
+    from fia_tools.shared import PAYMENT_ACTIONS
+    for bad in ("Stop the payment to this vendor", "Hold payment until support is received", "Recall the duplicate payment",
+                "Block the vendor", "Recover the overpayment", "Freeze the vendor account", "Suspend further payments",
+                "Claw back the duplicate invoice amount"):
+        assert PAYMENT_ACTIONS.search(bad), bad
+    for ok in ("Obtain the purchase order and review the approval", "Ask the approver why both invoices were paid",
+               "Obtain the callback record for the bank change", "Extend testing to the vendor's other invoices",
+               "Review whether the verification note is supported"):
+        assert not PAYMENT_ACTIONS.search(ok), ok
+
+
+def test_propose_finding_rejects_a_payment_action_recommendation(ctx):
+    e = run(ctx, "propose_finding", **{**FINDING, "recommendation": "Hold payment to the vendor until support is received."})
+    assert e["error"]["code"] == "invalid_input" and "investigative only" in e["error"]["message"]
+
+
 def test_propose_finding_rejects_action_advice_and_fraud_conclusions(ctx):
     e = run(ctx, "propose_finding", **{**FINDING, "recommendation": "Have the poster reverse and repost the entries."})
     assert e["error"]["code"] == "invalid_input" and "investigative only" in e["error"]["message"]

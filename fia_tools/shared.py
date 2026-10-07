@@ -137,6 +137,8 @@ def _check_evidence(conn, evidence):
 
 
 ACTION_WORDS = re.compile(r"\b(revers\w*|void\w*|re-?post\w*|delet\w*|write[- ]?offs?|post(?:ing)? a (?:correcting|reversing))\b", re.I)
+PAYMENT_ACTIONS = re.compile(r"\b(?:stop|hold|block|cancel|recall|freeze|suspend|claw\w*[- ]back|recover|deactivat\w*)\w*\s+(?:\w+\s+){0,2}"
+                             r"(?:payments?|vendors?|invoices?|overpayments?)\b", re.I)
 FRAUD_CONCLUSION = re.compile(r"\bno (?:evidence of |signs? of |indications? of )?fraud|\bfraud indicators?\b(?! (?:to|that))", re.I)
 
 
@@ -144,10 +146,10 @@ def _check_wording(**fields):
     """The memo rules, enforced where the text is written: recommendations are investigative only, and
     no conclusion about fraud either way. The message tells the model what to change."""
     rec = fields.pop("recommendation", None)
-    if rec and ACTION_WORDS.search(rec):
+    if rec and (ACTION_WORDS.search(rec) or PAYMENT_ACTIONS.search(rec)):
         raise ToolError("invalid_input", "The recommendation must be investigative only (obtain support, review the "
                         "approval, ask the poster, extend testing). Remove any advice to reverse, void, repost or delete, "
-                        "and call the tool again.")
+                        "or to stop, hold, block, recall or recover a payment or a vendor, and call the tool again.")
     for name, text in fields.items():
         if text and FRAUD_CONCLUSION.search(text):
             raise ToolError("invalid_input", f"'{name}' states a conclusion about fraud. Describe what the records "

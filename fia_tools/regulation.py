@@ -19,6 +19,15 @@ def topics():
     return sorted({r["topic"] for r in _load()["rows"]})
 
 
+def base_rate(state):
+    """The state use tax base rate as a Decimal (for example 0.056), from the use_tax_rate row. None if unknown."""
+    from decimal import Decimal
+    for r in _load()["rows"]:
+        if r["state"] == (state or "").strip().upper() and r["topic"] == "use_tax_rate" and r.get("rate"):
+            return Decimal(str(r["rate"]))
+    return None
+
+
 def get_regulation(state, topic):
     """Return the rows for one state and topic. Unknown input returns an error, never a guess."""
     data = _load()

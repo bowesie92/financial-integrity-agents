@@ -61,3 +61,23 @@ record; where the code differs, this file is the reason and the code is the rule
 15. **`new_vendor_large_invoices`**: vendor age is invoice date minus the vendor's creation date.
     Every invoice in this data carries an approver, so "approval present" is always true; the
     tool therefore also shows the approver's role and the approver the amount required.
+
+## Amendment for task 4.8 (2026-10-06)
+
+16. **`cross_state_invoices` (new tool, decision D26).** D24 scores one state-rule decision, use tax on
+    cross-state purchases, but no tool in docs/tools.md could find a cross-state invoice: the agent would
+    have had to open all 120 vendors one by one, so the scored pass ("flags it, names the destination
+    state, cites get_regulation, estimates the use tax") was unreachable. The tool lists invoices whose
+    vendor state differs from the receiving site's state, with the taxable-line and resale-line totals, the
+    tax the vendor charged, and the tax at the destination state's base rate on the taxable lines (computed
+    in code, per D6, from the same `reference/regulations.json` row that `get_regulation` cites). It states
+    facts and an estimate only. It does not say which invoices are exposed: telling a taxed invoice or a
+    resale purchase from an untaxed supply purchase is still the agent's judgment. 12 invoices per call,
+    `offset` for the next page, so every page fits the 6,000 character envelope. The rules-only baseline is
+    unchanged (D25): it still has no use-tax rule.
+17. **Wording guard extended to AP.** A recommendation that advises stopping, holding, blocking,
+    cancelling, recalling, freezing, suspending or recovering a payment, a vendor or an invoice is rejected,
+    the same way advice to reverse or void a journal entry is (memo rule 3, enforced where the text is
+    written). The rejection message says what to change.
+18. **One run script for both agents.** `scripts/run_review.py --agent gl|ap`; `scripts/run_gl_sentinel.py`
+    still works and calls it with `--agent gl`. The memo heading names the agent.

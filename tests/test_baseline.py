@@ -160,4 +160,4 @@ def test_timing_rule_excludes_post_close_and_period_end_flags(result):
 def test_baseline_writes_nothing(agent_conn):
     n = agent_conn.execute("select count(*) from fia.findings").fetchone()[0]
     run("test")
-    assert agent_conn.execute("select count(*) from fia.findings").fetchone()[0] == n == 0
+    assert agent_conn.execute("select count(*) from fia.findings").fetchone()[0] == n

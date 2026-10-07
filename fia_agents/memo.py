@@ -59,11 +59,14 @@ def render_memo(f, number=None):
     return "\n".join(body)
 
 
-def render_document(result, findings, model_alias="", source="database", prompt_version=""):
+AGENT_NAMES = {"gl_sentinel": "GL Sentinel", "ap_guardian": "AP Guardian"}
+
+
+def render_document(result, findings, model_alias="", source="database", prompt_version="", agent="gl_sentinel"):
     """The whole review as markdown: header, summary, every memo, then what was and was not checked."""
     fin = result.finish or {}
     cost = "not priced" if result.cost_usd is None else f"${result.cost_usd:.4f}"
-    lines = [f"# GL Sentinel review {result.run_id}", "",
+    lines = [f"# {AGENT_NAMES.get(agent, agent)} review {result.run_id}", "",
              f"Status: {result.status}. Model calls: {result.calls}. Tool calls: {result.tool_calls}. "
              f"Findings proposed: {result.findings}. Tokens in/out: {result.input_tokens}/{result.output_tokens}. "
              f"Cost: {cost}. Time: {result.wall_s} s."]

@@ -6,6 +6,8 @@ BUSINESS_END_HOUR = 19     # local time, exclusive
 BUSINESS_DAYS = "Monday to Friday"
 CONTROLLER_LIMIT = 5_000
 CFO_LIMIT = 25_000
+TAXABLE_ACCOUNTS = ("6300", "6310")   # office and warehouse supplies
+RESALE_ACCOUNTS = ("1200", "5100")    # inventory and freight in
 
 HOLIDAYS = (
     date(2025, 1, 1), date(2025, 1, 20), date(2025, 2, 17), date(2025, 5, 26),
