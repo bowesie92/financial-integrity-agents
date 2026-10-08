@@ -7,6 +7,7 @@ Usage (from the repo root, venv active):
 
 Options: --agent gl|ap (default gl)  --model dev|demo|demo-plus (default dev, Haiku 4.5)  --prompt VERSION
          --max-calls N  --max-cost USD  --max-wall SECONDS  --no-cache
+         --task-file PATH   (use the text in that file as the task instead of the standard one, for the red-team run)
          --env-file PATH  --key-var NAME   (where and under what name the Anthropic key is saved)
 
 The key is read from the env file and never printed. Files written: runs/<run_id>.jsonl (the log),
@@ -52,6 +53,7 @@ def parse(argv=None):
     ap.add_argument("--max-wall", type=float, default=Limits().max_wall_s)
     ap.add_argument("--prompt", default=None, help="system prompt version (default: the agent's current one)")
     ap.add_argument("--no-cache", action="store_true", help="turn prompt caching off")
+    ap.add_argument("--task-file", default=None, help="a text file holding the task (default: the agent's standard task)")
     ap.add_argument("--env-file", default="/etc/financial-integrity-agents-secrets/anthropic.env")
     ap.add_argument("--key-var", default="ANTHROPIC_API_KEY")
     a = ap.parse_args(argv)
@@ -59,6 +61,14 @@ def parse(argv=None):
     a.prompt = a.prompt or mod.PROMPT_VERSION
     if a.prompt not in mod.TEMPLATES:
         ap.error(f"--prompt {a.prompt} is not a prompt of agent {a.agent}. Known: {', '.join(sorted(mod.TEMPLATES))}")
+    a.task = None
+    if a.task_file:
+        path = Path(a.task_file)
+        if not path.is_file():
+            ap.error(f"--task-file {a.task_file} does not exist")
+        a.task = path.read_text(encoding="utf-8").strip()
+        if not a.task:
+            ap.error(f"--task-file {a.task_file} is empty")
     return a, mod
 
 
@@ -74,9 +84,11 @@ def main(argv=None):
     conn = agent_connection()
     print(f"Starting {run_id} on {a.model}, prompt {a.prompt} ({'dry run' if a.dry_run else 'REAL RUN, findings will be stored'}). "
           f"Limits: {limits.max_calls} calls, ${limits.max_cost_usd}, {limits.max_wall_s:.0f} s. Stop with: touch .fia_kill")
+    if a.task:
+        print(f"Task read from {a.task_file} ({len(a.task)} characters), not the standard task.")
     try:
         result, log_path = mod.run_review(client, conn, run_id=run_id, dry_run=a.dry_run, limits=limits,
-                                          log_dir=ROOT / "runs", kill=kill, prompt_version=a.prompt)
+                                          log_dir=ROOT / "runs", kill=kill, prompt_version=a.prompt, task=a.task)
         if a.dry_run:
             findings, source = findings_from_log(log_path), "run log (dry run, nothing stored)"
         else:

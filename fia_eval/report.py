@@ -56,6 +56,9 @@ def render_run(s):
             if r["underlying_found"] is not None else "no underlying anomaly: read the memo yourself"
         seen = {True: "id appeared in tool results", False: "id never appeared in tool results", None: "tool results not available"}[r["seen_in_tool_results"]]
         L.append(f"    {r['key']:22s} {','.join(r['invoice']):34s} {flag}; {seen}; {extra}")
+        if r["needs_manual_check"]:
+            where = ("cited in finding(s) " + ", ".join(str(n) for n in r["cited_in_findings"])) if r["cited_in_findings"] else "no finding cites it"
+            L.append(f"        read by hand: {where}; {'named in the closing summary' if r['named_in_summary'] else 'not named in the closing summary'}")
     u = s["use_tax"]
     L.append(f"USE TAX        passed {u['passed']}/{u['total']} (flag it, name the state, cite get_regulation, estimate within $1)")
     for o in u["items"]:
