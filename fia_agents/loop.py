@@ -6,6 +6,7 @@ read-only query in fia_tools (D6, D7). Rules the loop keeps:
   1. History is append-only. A reply is appended exactly as returned, thinking blocks included.
   2. The reply to tool calls is ONE user message holding only tool_result blocks, in call order.
   3. Every stop is a named status in the log, never a silent exit. Findings already proposed stay.
+  4. A reply cut off twice is dropped, not saved, and the model is asked once to carry on with shorter replies.
 Stop reasons follow platform.claude.com/docs/en/build-with-claude/handling-stop-reasons (2026-10-05).
 """
 import hashlib
@@ -43,6 +44,9 @@ class RunResult:
     @property
     def finished(self):
         return self.status == "finished"
+RECOVER = ("Your last reply was cut off because it was too long, and nothing in it was saved. Carry on: if you have "
+           "findings to propose, call propose_finding for one finding now with short text fields, and use one "
+           "propose_finding call per reply from here on. If you have nothing left to propose, call finish_review.")
 
 
 def _git_commit():
@@ -66,7 +70,7 @@ def run_agent(client, registry, ctx, system, task, limits=None, log=None, kill=N
     state, t0 = RunState(), clock()
     tools = registry.definitions()
     messages = [{"role": "user", "content": task}]
-    tool_calls = findings = bad_streak = nudges = 0
+    tool_calls = findings = bad_streak = nudges = recoveries = 0
     truncated = False
     max_tokens = limits.max_output_tokens
 
@@ -108,8 +112,14 @@ def run_agent(client, registry, ctx, system, task, limits=None, log=None, kill=N
         stop_reason = reply.stop_reason
 
         if stop_reason == "max_tokens":          # cut off mid-reply: retry the same request once, bigger
-            if truncated:
-                return end("output_truncated", f"reply cut off twice at {max_tokens} tokens")
+            if truncated:                        # cut off again at the bigger size: drop that reply, ask for less, once
+                if recoveries >= limits.max_recoveries:
+                    return end("output_truncated", f"reply cut off twice at {max_tokens} tokens")
+                recoveries += 1
+                truncated, max_tokens = False, limits.max_output_tokens
+                messages.append({"role": "user", "content": RECOVER})
+                log.event("recover_truncated", count=recoveries)
+                continue
             truncated, max_tokens = True, max_tokens * 2
             log.event("retry_truncated", new_max_tokens=max_tokens)
             continue

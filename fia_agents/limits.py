@@ -16,6 +16,7 @@ class Limits:
     max_wall_s: float = 900.0
     max_output_tokens: int = 4096            # per call; doubled once if a reply is cut off
     max_nudges: int = 1                      # reminders to call finish_review before giving up
+    max_recoveries: int = 1                  # times a run may carry on after a reply was cut off twice in a row
     max_internal_errors_in_row: int = 3      # tool failures in a row before the run is abandoned
 
 

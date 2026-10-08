@@ -31,7 +31,7 @@ Before every model call the loop asks one question in one place (`check_limits`)
 | token_budget | Too many tokens | 1,000,000 input plus output |
 | cost_budget | Too expensive | $1.00 (skipped if the model has no verified price) |
 | no_finish | Model stopped talking without finishing | after one reminder |
-| output_truncated | Reply cut off twice | 4096 tokens, then 8192 |
+| output_truncated | Reply cut off twice, then cut off twice again after one recovery | 4096 tokens, then 8192; the first double cut-off is dropped and the model is asked once to carry on with shorter replies |
 | tool_failure | Tools keep failing | 3 internal errors in a row |
 | db_error | Database connection closed | |
 | llm_fatal | The API call failed for good | bad key, no credit, and so on |

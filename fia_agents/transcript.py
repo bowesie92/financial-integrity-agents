@@ -36,6 +36,8 @@ def render_transcript(events):
             out.append("NUDGE: reminded the model to call finish_review")
         elif k == "retry_truncated":
             out.append(f"RETRY: reply was cut off, trying again with {e['new_max_tokens']} tokens")
+        elif k == "recover_truncated":
+            out.append("RECOVER: the reply was cut off twice, so it was dropped and the model was asked to carry on with shorter replies")
         elif k == "run_end":
             out.append("")
             out.append(f"END status {e['status']}  calls {e['calls']}  tools {e['tool_calls']}  findings {e['findings']}  "

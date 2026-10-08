@@ -7,7 +7,7 @@ import pytest
 
 from fia_agents.kill import KillSwitch
 from fia_agents.limits import Limits, RunState, check_limits
-from fia_agents.loop import NUDGE, run_agent
+from fia_agents.loop import NUDGE, RECOVER, run_agent
 from fia_agents.runlog import RunLog
 from fia_llm.errors import FatalLLMError
 from fia_llm.fake import FakeClient, multi_tool_turn, raw_turn, text_turn, tool_turn
@@ -142,10 +142,35 @@ def test_max_tokens_limit_resets_after_success():
     assert [c["max_tokens"] for c in client.calls] == [4096, 8192, 4096, 4096]
 
 
-def test_repeated_max_tokens_is_output_truncated():
+def test_reply_cut_off_twice_is_dropped_and_the_run_carries_on():
+    cut = lambda: raw_turn([{"type": "text", "text": "partial"}, {"type": "tool_use", "id": "x", "name": "propose_finding", "input": {}}], "max_tokens")
+    prop = tool_turn("propose_finding", {"reason": R}, call_id="p1")
+    res, client, log, _ = go([cut(), cut(), prop, fin()])
+    assert res.status == "finished" and res.calls == 4 and res.findings == 1
+    assert [c["max_tokens"] for c in client.calls] == [4096, 8192, 4096, 4096]
+    third = client.calls[2]["messages"]
+    assert third[-1] == {"role": "user", "content": RECOVER}
+    assert all("partial" not in json.dumps(m) for m in third)          # the cut-off reply was not kept
+    assert any(e["event"] == "recover_truncated" for e in log.events)
+
+
+def test_recovery_is_allowed_only_once_per_run():
     cut = lambda: raw_turn([{"type": "text", "text": "partial"}], "max_tokens")
-    res, _, _, _ = go([cut(), cut()])
+    res, client, _, _ = go([cut(), cut(), cut(), cut()])
+    assert res.status == "output_truncated" and res.calls == 4
+    assert [m["content"] for m in client.calls[3]["messages"] if m["role"] == "user"].count(RECOVER) == 1
+
+
+def test_recovery_can_be_switched_off():
+    cut = lambda: raw_turn([{"type": "text", "text": "partial"}], "max_tokens")
+    res, _, _, _ = go([cut(), cut()], limits=Limits(max_recoveries=0))
     assert res.status == "output_truncated" and res.calls == 2
+
+
+def test_recovery_calls_still_count_against_the_call_cap():
+    cut = lambda: raw_turn([{"type": "text", "text": "partial"}], "max_tokens")
+    res, _, _, _ = go([cut(), cut(), echo(1)], limits=Limits(max_calls=3))
+    assert res.status == "max_calls" and res.calls == 3
 
 
 @pytest.mark.parametrize("stop,status", [("refusal", "refusal"), ("model_context_window_exceeded", "context_exceeded"),

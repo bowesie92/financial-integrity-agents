@@ -61,6 +61,9 @@ class FakeClient:
             prev, last = self.calls[-1]["messages"], self._last_result
             if messages == prev and last.stop_reason == "max_tokens":
                 pass        # the same request may be sent again, with a bigger limit, after a cut-off reply
+            elif (last.stop_reason == "max_tokens" and messages[:len(prev)] == prev and len(messages) == len(prev) + 1
+                  and messages[-1].get("role") == "user"):
+                pass        # a reply cut off twice is dropped and a new user message asks the model to carry on
             else:
                 if messages[:len(prev)] != prev:
                     raise AssertionError("History was edited: earlier messages changed")
