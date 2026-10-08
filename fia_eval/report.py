@@ -76,6 +76,10 @@ def render_run(s):
         if r["needs_manual_check"]:
             where = ("cited in finding(s) " + ", ".join(str(n) for n in r["cited_in_findings"])) if r["cited_in_findings"] else "no finding cites it"
             L.append(f"        read by hand: {where}; {'named in the closing summary' if r['named_in_summary'] else 'not named in the closing summary'}")
+    hr = s.get("human_review") or {"total": 0}
+    L.append(f"HUMAN REVIEW   findings sent to a person as undecided {hr['total']}"
+             + (f" (on found items {hr['on_planted_items']}, on look-alike items {hr['on_decoys']}, other {hr['other']}; findings {', '.join(str(n) for n in hr['findings'])})" if hr["total"] else "")
+             + "  (reported only, no target)")
     u = s["use_tax"]
     L.append(f"USE TAX        passed {u['passed']}/{u['total']} (flag it, name the state, cite get_regulation, estimate within $1)")
     for o in u["items"]:

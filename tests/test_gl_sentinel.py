@@ -77,6 +77,15 @@ def test_gl7_adds_output_pacing_to_gl6():
     assert len(p7.split()) < 830
 
 
+def test_gl8_adds_the_general_rules_to_gl7_and_names_no_pattern():
+    p7, p8 = build_system_prompt(version="gl-7"), build_system_prompt(version="gl-8")
+    for need in ("WHEN YOU ARE NOT SURE", "NEEDS HUMAN REVIEW:", "Clear a signal only on a specific record",
+                 "Compare with peers and with history", "Cite only the records that support the finding", "EVIDENCE"):
+        assert need in p8 and need not in p7, need
+    assert "PACE YOUR WRITING" in p8 and len(p8.split()) < 960
+    assert PROMPT_VERSION == "gl-7"          # gl-8 is chosen with --prompt until it has been measured
+
+
 def test_unknown_prompt_version_is_refused():
     with pytest.raises(ValueError):
         build_system_prompt(version="gl-9")

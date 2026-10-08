@@ -7,7 +7,7 @@ import pytest
 from fia_eval.lookups import GeneratorLookups
 from fia_eval.report import render_all
 from fia_eval.runs import Run, load_run, run_from_findings
-from fia_eval.score import AP_REQUIRED, build_items, jaccard_mean, sample_for_review, score_run
+from fia_eval.score import AP_REQUIRED, review_summary, build_items, jaccard_mean, sample_for_review, score_run
 from generator.build import build
 
 
@@ -206,3 +206,13 @@ def test_a_missed_cluster_reports_what_the_closest_finding_lacked(ds, lk):
     assert "does not name the user" in render_all([s])
     none = score_run(run_from_findings("g", "gl_sentinel", []), ds.manifest, lk)
     assert all(m["closest_finding"] is None for m in none["not_found"])
+
+
+def test_human_review_findings_are_counted_by_what_they_cover_and_change_nothing_else():
+    findings = [{"title": "NEEDS HUMAN REVIEW: unusual postings by one clerk"}, {"title": "needs human review - vendor"},
+                {"title": "Possible duplicate payment"}, {"title": "Review needed for something"}, {"title": None}]
+    verdicts = [{"class": "true_positive"}, {"class": "decoy_low"}, {"class": "true_positive"},
+                {"class": "false_positive"}, {"class": "false_positive"}]
+    r = review_summary(findings, verdicts)
+    assert r == {"findings": [1, 2], "total": 2, "on_planted_items": 1, "on_decoys": 1, "other": 0}
+    assert review_summary([], []) == {"findings": [], "total": 0, "on_planted_items": 0, "on_decoys": 0, "other": 0}

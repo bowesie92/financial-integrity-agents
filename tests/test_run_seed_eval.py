@@ -11,12 +11,12 @@ pytestmark = pytest.mark.skipif(shutil.which("bash") is None or shutil.which("gi
 
 RUN_REVIEW = '''import argparse, pathlib
 ap = argparse.ArgumentParser()
-ap.add_argument("--agent"); ap.add_argument("--model"); ap.add_argument("--task-file"); ap.add_argument("--dry-run", action="store_true")
+ap.add_argument("--agent"); ap.add_argument("--model"); ap.add_argument("--task-file"); ap.add_argument("--prompt"); ap.add_argument("--dry-run", action="store_true")
 a = ap.parse_args()
 runs = pathlib.Path("runs"); runs.mkdir(exist_ok=True)
 n = len(list(runs.glob("*.jsonl"))) + 1
 (runs / f"{a.agent}-{n:03d}.jsonl").write_text("{}\\n")
-print("status finished", a.agent, a.model, a.task_file)
+print("status finished", a.agent, a.model, a.task_file, a.prompt)
 '''
 EVALUATE = '''import argparse, json, pathlib
 ap = argparse.ArgumentParser()
@@ -76,7 +76,7 @@ def test_task_file_and_model_are_passed_to_every_run(repo):
     r = go(repo, "--seed", "2", "--runs", "1", "--agents", "ap", "--tag", "t3", "--model", "dev",
            "--task-file", "task.txt", "--yes")
     assert r.returncode == 0, r.stderr
-    assert "ap dev task.txt" in (repo / "results/t3_runs.txt").read_text()
+    assert "ap dev task.txt None" in (repo / "results/t3_runs.txt").read_text()
 
 
 def test_declining_the_question_runs_nothing(repo):
@@ -123,3 +123,18 @@ def test_no_new_logs_stops_before_scoring(repo):
     git(repo, "commit", "-q", "-m", "no logs")
     r = go(repo, "--seed", "7", "--runs", "1", "--tag", "t8", "--yes")
     assert r.returncode == 4 and not (repo / "results/eval_t8.json").exists()
+
+
+def test_each_agent_gets_its_own_prompt_version(repo):
+    r = go(repo, "--seed", "5", "--runs", "1", "--tag", "t9", "--ap-prompt", "ap-2", "--gl-prompt", "gl-8", "--yes")
+    assert r.returncode == 0, r.stderr
+    text = (repo / "results/t9_runs.txt").read_text()
+    assert "finished ap demo-plus None ap-2" in text and "finished gl demo-plus None gl-8" in text
+    assert "Prompts:  ap ap-2, gl gl-8" in r.stdout
+
+
+def test_prompt_options_default_to_the_agents_own_default_and_reject_odd_names(repo):
+    r = go(repo, "--seed", "5", "--runs", "1", "--tag", "t10", "--yes")
+    assert "finished ap demo-plus None None" in (repo / "results/t10_runs.txt").read_text() and "Prompts:  ap default, gl default" in r.stdout
+    r = go(repo, "--seed", "5", "--runs", "1", "--tag", "t11", "--ap-prompt", "x y", "--yes")
+    assert r.returncode == 2 and "STOP" in r.stderr and not (repo / "results/t11_runs.txt").exists()

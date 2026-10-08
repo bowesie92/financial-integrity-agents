@@ -11,6 +11,8 @@
 #   --tag NAME       names the result files: results/NAME_runs.txt, results/eval_NAME.txt and .json (required)
 #   --agents "ap gl" which agents to run (default both)
 #   --model NAME     model profile (default demo-plus, which is Sonnet 5.5)
+#   --ap-prompt V    prompt version for AP Guardian (default: the agent's own default)
+#   --gl-prompt V    prompt version for GL Sentinel (default: the agent's own default)
 #   --task-file F    give every run this task text (used for the targeted red-team run)
 #   --allow-dirty    run even though tracked files have changed since the last commit
 #   --yes            do not ask for confirmation
@@ -21,7 +23,7 @@
 set -uo pipefail
 
 PY="${PY:-python}"
-SEED=""; RUNS=5; TAG=""; AGENTS="ap gl"; MODEL="demo-plus"; TASK_FILE=""; ALLOW_DIRTY=0; YES=0
+SEED=""; RUNS=5; TAG=""; AGENTS="ap gl"; MODEL="demo-plus"; TASK_FILE=""; ALLOW_DIRTY=0; YES=0; AP_PROMPT=""; GL_PROMPT=""
 
 die() { echo "STOP: $*" >&2; exit "${2:-2}"; }
 
@@ -32,6 +34,8 @@ while [ $# -gt 0 ]; do
     --tag) TAG="${2:-}"; shift 2 ;;
     --agents) AGENTS="${2:-}"; shift 2 ;;
     --model) MODEL="${2:-}"; shift 2 ;;
+    --ap-prompt) AP_PROMPT="${2:-}"; shift 2 ;;
+    --gl-prompt) GL_PROMPT="${2:-}"; shift 2 ;;
     --task-file) TASK_FILE="${2:-}"; shift 2 ;;
     --allow-dirty) ALLOW_DIRTY=1; shift ;;
     --yes) YES=1; shift ;;
@@ -43,6 +47,8 @@ done
 [[ "$SEED" =~ ^[0-9]+$ ]] || die "--seed needs a number"
 [[ "$RUNS" =~ ^[0-9]+$ ]] && [ "$RUNS" -ge 1 ] && [ "$RUNS" -le 20 ] || die "--runs needs a number from 1 to 20"
 [[ "$TAG" =~ ^[A-Za-z0-9_-]+$ ]] || die "--tag needs letters, digits, _ or - (for example seed2)"
+[[ -z "$AP_PROMPT" || "$AP_PROMPT" =~ ^[A-Za-z0-9_-]+$ ]] || die "--ap-prompt needs a name like ap-2"
+[[ -z "$GL_PROMPT" || "$GL_PROMPT" =~ ^[A-Za-z0-9_-]+$ ]] || die "--gl-prompt needs a name like gl-8"
 for a in $AGENTS; do [ "$a" = ap ] || [ "$a" = gl ] || die "--agents can only contain ap and gl"; done
 [ -f scripts/run_review.py ] && [ -f scripts/evaluate.py ] || die "run this from the repo root (scripts/run_review.py not found)"
 [ -z "$TASK_FILE" ] || [ -f "$TASK_FILE" ] || die "task file $TASK_FILE not found"
@@ -65,6 +71,7 @@ WORST=$(awk -v n="$TOTAL" 'BEGIN{printf "%.2f", n*1.50}')
 echo "Version:  $(git describe --tags --always 2>/dev/null) ($(git log -1 --oneline))"
 echo "Plan:     $RUNS run(s) of: $AGENTS on model $MODEL, seed $SEED, tag $TAG ($TOTAL runs)"
 [ -z "$TASK_FILE" ] || echo "Task:     $TASK_FILE"
+echo "Prompts:  ap ${AP_PROMPT:-default}, gl ${GL_PROMPT:-default}"
 echo "Cost:     about \$$EST (each run is capped at \$1.50, so the worst case is \$$WORST)"
 echo "Check:    the database must hold seed $SEED (scripts/load_data.py --seed $SEED), and the Anthropic"
 echo "          balance and the workspace monthly limit must cover the worst case."
@@ -83,6 +90,8 @@ ls runs/*.jsonl 2>/dev/null | sort > "$TMP/before" || true
     for a in $AGENTS; do
       args=(--agent "$a" --dry-run --model "$MODEL")
       [ -z "$TASK_FILE" ] || args+=(--task-file "$TASK_FILE")
+      [ "$a" != ap ] || [ -z "$AP_PROMPT" ] || args+=(--prompt "$AP_PROMPT")
+      [ "$a" != gl ] || [ -z "$GL_PROMPT" ] || args+=(--prompt "$GL_PROMPT")
       "$PY" scripts/run_review.py "${args[@]}"
       rc=$?
       [ "$rc" -eq 0 ] || echo "NOTE: run exited with code $rc. It is kept and counted."

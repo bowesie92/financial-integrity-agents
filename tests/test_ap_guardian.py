@@ -159,3 +159,16 @@ def test_ap_real_run_findings_are_read_back_from_the_database(agent_conn):
         assert findings_for_run(agent_conn, "ap-test-real") == []              # the GL default finds nothing
         raise psycopg.Rollback()
     assert agent_conn.execute("select count(*) from fia.findings where run_id = 'ap-test-real'").fetchone()[0] == 0
+
+
+def test_ap2_adds_the_general_rules_and_pacing_to_ap1_and_leaks_nothing():
+    p1, p2 = build_system_prompt(version="ap-1"), build_system_prompt(version="ap-2")
+    for need in ("WHEN YOU ARE NOT SURE", "NEEDS HUMAN REVIEW:", "Clear a signal only on a specific record",
+                 "Cite only the records that support the finding", "state the total in the finding text",
+                 "PACE YOUR WRITING", "at most two propose_finding calls"):
+        assert need in p2 and need not in p1, need
+    for banned in ("planted", "decoy", "seed", "ground truth", "manifest", "baseline", "red-team", "red team",
+                   "controller", "v0001", "fresno"):
+        assert banned not in p2.lower(), banned
+    assert "{" not in p2 and len(p2.split()) < 960
+    assert PROMPT_VERSION == "ap-1"
