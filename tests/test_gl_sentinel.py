@@ -66,8 +66,15 @@ def test_gl6_adds_three_rules_to_gl5():
     for need in ("EVERY poster the scan lists", "cite every entry in the group", "up to the 20", "Rate it low",
                  "obtaining the memo"):
         assert need in p, need
-    assert PROMPT_VERSION == "gl-6"
     assert len(p.split()) < 760
+
+
+def test_gl7_adds_output_pacing_to_gl6():
+    p6, p7 = build_system_prompt(version="gl-6"), build_system_prompt(version="gl-7")
+    for need in ("PACE YOUR WRITING", "at most two propose_finding calls", "Never hold findings back"):
+        assert need in p7 and need not in p6, need
+    assert p7.startswith(p6[:400]) and PROMPT_VERSION == "gl-7"
+    assert len(p7.split()) < 830
 
 
 def test_unknown_prompt_version_is_refused():
