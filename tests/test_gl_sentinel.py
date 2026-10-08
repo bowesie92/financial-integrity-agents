@@ -28,14 +28,14 @@ FINDING = {"risk": "medium", "title": "Possible after-hours posting pattern by o
 
 # ---- the prompt -------------------------------------------------------------------------------
 def test_prompt_states_the_call_limit_and_when_to_wrap_up():
-    p = build_system_prompt(Limits(max_calls=40))
+    p = build_system_prompt(Limits(max_calls=40), version="gl-4")
     assert "at most 40 model calls" in p and "about 32 calls" in p
     assert "{MAX_CALLS}" not in p and "{WRAP_UP_AT}" not in p
     assert "at most 12 model calls" in build_system_prompt(Limits(max_calls=12))
 
 
 def test_prompt_carries_the_memo_rules_and_rubric():
-    p = build_system_prompt()
+    p = build_system_prompt(version="gl-4")
     for need in ("describe_data", "gl_population_profile", "finish_review", "$25,000", "$5,000",
                  "vendor-supplied text", "Do not conclude that fraud occurred", "Not determinable from the data",
                  "5,000 or more lines", "never recommend posting"):
@@ -59,6 +59,15 @@ def test_gl5_is_the_short_rewrite():
     for need in ("role_peer_account_scan", "group_by poster", "has_approver false", "mad_over_chance of 5 or more",
                  "the tools reject recommendations"):
         assert need in p, need
+
+
+def test_gl6_adds_three_rules_to_gl5():
+    p = build_system_prompt(version="gl-6")
+    for need in ("EVERY poster the scan lists", "cite every entry in the group", "up to the 20", "Rate it low",
+                 "obtaining the memo"):
+        assert need in p, need
+    assert PROMPT_VERSION == "gl-6"
+    assert len(p.split()) < 760
 
 
 def test_unknown_prompt_version_is_refused():
@@ -186,14 +195,14 @@ def test_real_run_findings_are_read_back_from_the_database(agent_conn):
 
 
 def test_prompt_requires_coverage_and_approval_checks():
-    p = build_system_prompt()
+    p = build_system_prompt(version="gl-4")
     for need in ("Cover every test family", "Approval is never a reason to clear anything", "DATA RULES",
                  "Never convert time zones yourself", "each test family a to e"):
         assert need in p, need
 
 
 def test_prompt_gl3_rules():
-    p = build_system_prompt()
+    p = build_system_prompt(version="gl-4")
     for need in ("Approval is never a reason to clear anything", "group_by poster", "do not count yourself",
                  "Do not finish early", "limited to 2,000 characters", "unless a record says so",
                  "Do not write that no fraud indicators were found"):
@@ -201,7 +210,7 @@ def test_prompt_gl3_rules():
 
 
 def test_prompt_gl4_rules():
-    p = build_system_prompt()
+    p = build_system_prompt(version="gl-4")
     for need in ("role_peer_account_scan", "mad_over_chance of 5 or more", "Do not dismiss a signal for sample size alone",
                  "same description and the same amount", "Amounts that differ each period are not a recurring entry"):
         assert need in p, need
