@@ -138,6 +138,46 @@ class NoLookups:
     def vendor_created(self, vendor_id): return None
 
 
+def user_named(item, text, lk):
+    """Does the text name the user (id or full name) who posted most of the cluster? None when no lookups."""
+    posters = lk.posters(sorted(item.ids))
+    if posters is None:
+        return None
+    top = Counter(posters.values()).most_common(1)[0][0] if posters else ()   # (user_id, full_name)
+    return any(re.search(r"\b" + re.escape(n) + r"\b", text, re.I) for n in top if n)
+
+
+def account_named(item, fids, text, lk):
+    """Does the text name an account the cluster entries touched? None when no lookups."""
+    accounts = lk.je_accounts(sorted(item.ids & fids))
+    if accounts is None:
+        return None
+    return any(re.search(r"\b" + re.escape(a) + r"\b", text) for a in accounts)
+
+
+def near_miss(item, run, lk):
+    """For a planted item that was not credited: the finding that came closest and which test it failed."""
+    best = None
+    for n, f in enumerate(run.findings):
+        text = finding_text(f)
+        fids = ids_in(f, text)
+        cited = len(fids & item.ids)
+        if best is None or cited > best[0]:
+            best = (cited, n, text, fids, f)
+    out = {"pattern": item.pattern, "key": item.key, "needed_entries": GL_CLUSTERS.get(item.pattern, (None,))[0],
+           "entries_in_item": len(item.ids), "closest_finding": None}
+    if best is None or best[0] == 0:
+        return out
+    cited, n, text, fids, f = best
+    out.update({"closest_finding": n + 1, "title": f.get("title"), "records_cited": cited, "keyword": kw(item.pattern, text)})
+    if item.pattern in GL_CLUSTERS:
+        if GL_CLUSTERS[item.pattern][1]:
+            out["user_named"] = user_named(item, text, lk)
+        if item.pattern == "unusual_user_account":
+            out["account_named"] = account_named(item, fids, text, lk)
+    return out
+
+
 def detects(item, f, text, fids, lk):
     """Does finding f detect planted item `item`? Returns (True/False, list of sub-checks skipped)."""
     p, skipped = item.pattern, []
@@ -150,18 +190,16 @@ def detects(item, f, text, fids, lk):
         if not kw(p, text) or len(fids & item.ids) < need:
             return False, skipped
         if user:
-            posters = lk.posters(sorted(item.ids))
-            if posters is None:
+            named = user_named(item, text, lk)
+            if named is None:
                 skipped.append("user named")
-            else:
-                top = Counter(posters.values()).most_common(1)[0][0] if posters else ()   # (user_id, full_name)
-                if not any(re.search(r"\b" + re.escape(n) + r"\b", text, re.I) for n in top if n):
-                    return False, skipped
+            elif not named:
+                return False, skipped
         if p == "unusual_user_account":
-            accounts = lk.je_accounts(sorted(item.ids & fids))
-            if accounts is None:
+            named = account_named(item, fids, text, lk)
+            if named is None:
                 skipped.append("account named")
-            elif not any(re.search(r"\b" + re.escape(a) + r"\b", text) for a in accounts):
+            elif not named:
                 return False, skipped
         return True, skipped
     refs, inv = item.refs, item.ids
@@ -260,6 +298,8 @@ def score_run(run, manifest, lookups=None):
         req = AP_REQUIRED.get(p)
         patterns[p] = {**c, "required": req, "met": (c["found"] >= req) if req else None}
 
+    misses = [near_miss(i, run, lk) for i in planted if i.key not in credited and i.pattern != "use_tax_exposure"]
+
     # decoys: flagged when a finding at medium or high risk cites them
     flagged = {}
     for v in verdicts:
@@ -302,7 +342,7 @@ def score_run(run, manifest, lookups=None):
 
     return {
         "run_id": run.run_id, "agent": run.agent, "alias": run.alias, "source": run.source,
-        "findings": verdicts, "skipped_checks": sorted(skipped),
+        "findings": verdicts, "skipped_checks": sorted(skipped), "not_found": misses,
         "patterns": patterns, "detected_items": sorted(credited),
         "counts": {"findings": len(verdicts), "true_positive": len(tp), "non_redundant": len(non_redundant),
                    "redundant": sum(v["class"] == "redundant" for v in verdicts),

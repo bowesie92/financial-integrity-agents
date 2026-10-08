@@ -31,6 +31,23 @@ def render_run(s):
             L.append(f"  {p:30s} {v['found']}/{v['total']}   (no per-run target)")
     L.append("")
     tp, nr = s["counts"]["true_positive"], s["counts"]["non_redundant"]
+    if s["not_found"]:
+        L.append("NOT FOUND (the finding that came closest, and what it lacked)")
+        for m in s["not_found"]:
+            if m["closest_finding"] is None:
+                L.append(f"  {m['key']:34s} no finding cites any of its {m['entries_in_item']} records")
+                continue
+            lack = []
+            if m.get("needed_entries") and m["records_cited"] < m["needed_entries"]:
+                lack.append(f"cites {m['records_cited']} records, needs {m['needed_entries']}")
+            if not m["keyword"]:
+                lack.append("does not name the pattern")
+            if m.get("user_named") is False:
+                lack.append("does not name the user")
+            if m.get("account_named") is False:
+                lack.append("does not name the account")
+            L.append(f"  {m['key']:34s} finding {m['closest_finding']} ({str(m['title'])[:50]}): " + ("; ".join(lack) or "check by hand"))
+        L.append("")
     L.append(f"PRECISION      {tp}/{nr} = {pct(s['precision'])}{_met(s['precision'], TARGETS['precision'])}")
     d = s["decoys"]
     L.append(f"DECOY CLEARANCE {d['total'] - d['flagged']}/{d['total']} = {pct(d['clearance'])}"

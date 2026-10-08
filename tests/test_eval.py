@@ -194,3 +194,15 @@ def test_report_and_sample_and_overlap(ds, lk):
     assert sample_for_review([a, b]) == sample_for_review([a, b]) and len(sample_for_review([a, b])) == 10
     text = render_all([a, b])
     assert "PRECISION" in text and "ACROSS RUNS" in text and "SAMPLE FOR YOUR GRADING" in text
+
+
+def test_a_missed_cluster_reports_what_the_closest_finding_lacked(ds, lk):
+    it = items(ds, "gl_sentinel", "planted", "round_dollar_cluster")[0]
+    ids = sorted(it.ids)[:7]
+    f = finding("Round amounts", f"Round-dollar entries {', '.join(ids)} look unusual.", ids, "medium", tables={i: "journal_entries" for i in ids})
+    s = score_run(run_from_findings("g", "gl_sentinel", [f]), ds.manifest, lk)
+    miss = next(m for m in s["not_found"] if m["pattern"] == "round_dollar_cluster")
+    assert miss["closest_finding"] == 1 and miss["records_cited"] == 7 and miss["keyword"] is True and miss["user_named"] is False
+    assert "does not name the user" in render_all([s])
+    none = score_run(run_from_findings("g", "gl_sentinel", []), ds.manifest, lk)
+    assert all(m["closest_finding"] is None for m in none["not_found"])
