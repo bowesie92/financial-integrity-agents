@@ -1,0 +1,70 @@
+Starting ap-20261009-025711-6722cf on demo-plus, prompt ap-2 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 19  tool calls 55  findings 16  tokens 875823/23225  cost $0.5793  time 184.39 s
+cache     on  read 801071  written 74712  (the input figure above includes both)
+log        runs/ap-20261009-025711-6722cf.jsonl
+transcript runs/ap-20261009-025711-6722cf.txt
+memo       memos/ap-20261009-025711-6722cf.md
+Starting gl-20261009-030016-8df05e on demo-plus, prompt gl-8 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 24  tool calls 68  findings 9  tokens 1497665/27500  cost $0.8186  time 252.76 s
+cache     on  read 1391554  written 106061  (the input figure above includes both)
+log        runs/gl-20261009-030016-8df05e.jsonl
+transcript runs/gl-20261009-030016-8df05e.txt
+memo       memos/gl-20261009-030016-8df05e.md
+Starting ap-20261009-030430-205231 on demo-plus, prompt ap-2 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 26  tool calls 62  findings 22  tokens 1311807/27843  cost $0.7325  time 221.91 s
+cache     on  read 1228426  written 83327  (the input figure above includes both)
+log        runs/ap-20261009-030430-205231.jsonl
+transcript runs/ap-20261009-030430-205231.txt
+memo       memos/ap-20261009-030430-205231.md
+Starting gl-20261009-030813-fafdf4 on demo-plus, prompt gl-8 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 29  tool calls 90  findings 10  tokens 2183171/30289  cost $1.0339  time 290.55 s
+cache     on  read 2055170  written 127941  (the input figure above includes both)
+log        runs/gl-20261009-030813-fafdf4.jsonl
+transcript runs/gl-20261009-030813-fafdf4.txt
+memo       memos/gl-20261009-030813-fafdf4.md
+Starting ap-20261009-031305-790f85 on demo-plus, prompt ap-2 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 22  tool calls 55  findings 15  tokens 1012026/22765  cost $0.6060  time 185.95 s
+cache     on  read 935533  written 76447  (the input figure above includes both)
+log        runs/ap-20261009-031305-790f85.jsonl
+transcript runs/ap-20261009-031305-790f85.txt
+memo       memos/ap-20261009-031305-790f85.md
+Starting gl-20261009-031612-95564e on demo-plus, prompt gl-8 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 21  tool calls 62  findings 8  tokens 1179549/21618  cost $0.6601  time 202.78 s
+cache     on  read 1089106  written 90399  (the input figure above includes both)
+log        runs/gl-20261009-031612-95564e.jsonl
+transcript runs/gl-20261009-031612-95564e.txt
+memo       memos/gl-20261009-031612-95564e.md
+Starting ap-20261009-031936-73f6ca on demo-plus, prompt ap-2 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 16  tool calls 46  findings 10  tokens 646828/23189  cost $0.5230  time 180.08 s
+cache     on  read 576477  written 70317  (the input figure above includes both)
+log        runs/ap-20261009-031936-73f6ca.jsonl
+transcript runs/ap-20261009-031936-73f6ca.txt
+memo       memos/ap-20261009-031936-73f6ca.md
+Starting gl-20261009-032237-3bf375 on demo-plus, prompt gl-8 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 22  tool calls 72  findings 8  tokens 1317070/27930  cost $0.7528  time 243.89 s
+cache     on  read 1225719  written 91305  (the input figure above includes both)
+log        runs/gl-20261009-032237-3bf375.jsonl
+transcript runs/gl-20261009-032237-3bf375.txt
+memo       memos/gl-20261009-032237-3bf375.md
+Starting ap-20261009-032642-bf67f8 on demo-plus, prompt ap-2 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 26  tool calls 62  findings 22  tokens 1169608/27491  cost $0.6779  time 216.96 s
+cache     on  read 1096090  written 73464  (the input figure above includes both)
+log        runs/ap-20261009-032642-bf67f8.jsonl
+transcript runs/ap-20261009-032642-bf67f8.txt
+memo       memos/ap-20261009-032642-bf67f8.md
+Starting gl-20261009-033020-c39725 on demo-plus, prompt gl-8 (dry run). Limits: 40 calls, $1.50, 900 s. Stop with: touch .fia_kill
+
+status finished  calls 24  tool calls 73  findings 9  tokens 1515091/30077  cost $0.8537  time 264.29 s
+cache     on  read 1406418  written 108623  (the input figure above includes both)
+log        runs/gl-20261009-033020-c39725.jsonl
+transcript runs/gl-20261009-033020-c39725.txt
+memo       memos/gl-20261009-033020-c39725.md
