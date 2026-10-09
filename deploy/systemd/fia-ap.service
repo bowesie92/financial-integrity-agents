@@ -1,0 +1,9 @@
+[Unit]
+Description=FIA AP Guardian review
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/cass/repos/financial-integrity-agents
+ExecStart=/home/cass/repos/financial-integrity-agents/.venv/bin/python scripts/run_review.py --agent ap --model demo-plus
+Environment=PYTHONUNBUFFERED=1
+TimeoutStartSec=1200
