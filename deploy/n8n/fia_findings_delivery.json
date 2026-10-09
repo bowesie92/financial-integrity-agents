@@ -1,0 +1,266 @@
+{
+  "name": "FIA findings delivery",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "id": "sched",
+      "name": "Every 2 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Run now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select f.finding_id, f.agent, f.risk, f.title, f.finding_condition, f.recommendation, f.run_id, f.created_at from fia.findings f where not exists (select 1 from fia.finding_deliveries d where d.finding_id = f.finding_id and d.channel = 'discord') order by f.created_at limit 25",
+        "options": {}
+      },
+      "id": "unsent-for-discord",
+      "name": "Unsent for Discord",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        260,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cut = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nconst who = { ap_guardian: 'AP Guardian', gl_sentinel: 'GL Sentinel' };\nreturn $input.all().map(item => {\n  const f = item.json;\n  const content = [\n    '**[' + String(f.risk).toUpperCase() + '] ' + (who[f.agent] || f.agent) + ': ' + cut(f.title, 200) + '**',\n    'Condition: ' + cut(f.finding_condition, 900),\n    'Recommendation: ' + cut(f.recommendation, 500),\n    'Run: ' + f.run_id + '  Finding: ' + f.finding_id,\n    '(proposed finding for a person to review; nothing has been changed or stopped)'\n  ].join('\\n');\n  return { json: { finding_id: f.finding_id, content: cut(content, 1900) } };\n});"
+      },
+      "id": "fmt",
+      "name": "Format Discord message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "={{ $json.content }}",
+        "options": {}
+      },
+      "id": "discord",
+      "name": "Post to Discord",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        780,
+        -120
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into fia.finding_deliveries (finding_id, channel) values ($1::uuid, 'discord') on conflict do nothing",
+        "options": {
+          "queryReplacement": "={{ $('Format Discord message').item.json.finding_id }}"
+        }
+      },
+      "id": "record-discord-delivery",
+      "name": "Record Discord delivery",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1040,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select f.finding_id, f.agent, f.risk, f.title, f.finding_condition, f.recommendation, f.run_id, f.created_at from fia.findings f where not exists (select 1 from fia.finding_deliveries d where d.finding_id = f.finding_id and d.channel = 'email') order by f.created_at limit 25",
+        "options": {}
+      },
+      "id": "unsent-for-email",
+      "name": "Unsent for email",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        260,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst cut = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n - 3) + '...' : s; };\nconst order = { high: 0, medium: 1, low: 2 };\nitems.sort((a, b) => (order[a.risk] - order[b.risk]));\nconst count = r => items.filter(f => f.risk === r).length;\nconst lines = items.map(f => '[' + String(f.risk).toUpperCase() + '] ' + f.agent + ': ' + cut(f.title, 160));\nconst text = [\n  items.length + ' new proposed finding(s): ' + count('high') + ' high, ' + count('medium') + ' medium, ' + count('low') + ' low.',\n  '',\n  ...lines,\n  '',\n  'Full detail for each finding is posted in the Discord channel #fia-findings and stored in the findings table.',\n  'These are proposals for a person to review. Nothing has been paid, stopped or changed.'\n].join('\\n');\nreturn [{ json: {\n  subject: 'FIA: ' + items.length + ' new proposed finding(s) (' + count('high') + ' high)',\n  text: text,\n  ids: items.map(f => f.finding_id).join('|')\n} }];"
+      },
+      "id": "digest",
+      "name": "Build email digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "fia@YOUR-MAILGUN-SANDBOX-DOMAIN.mailgun.org",
+        "toEmail": "you@example.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "email",
+      "name": "Send digest email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into fia.finding_deliveries (finding_id, channel) select unnest(string_to_array($1, '|'))::uuid, 'email' on conflict do nothing",
+        "options": {
+          "queryReplacement": "={{ $('Build email digest').item.json.ids }}"
+        }
+      },
+      "id": "record-email-delivery",
+      "name": "Record email delivery",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1040,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Run now": {
+      "main": [
+        [
+          {
+            "node": "Unsent for Discord",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Unsent for email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unsent for Discord": {
+      "main": [
+        [
+          {
+            "node": "Format Discord message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Discord message": {
+      "main": [
+        [
+          {
+            "node": "Post to Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Discord": {
+      "main": [
+        [
+          {
+            "node": "Record Discord delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unsent for email": {
+      "main": [
+        [
+          {
+            "node": "Build email digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build email digest": {
+      "main": [
+        [
+          {
+            "node": "Send digest email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send digest email": {
+      "main": [
+        [
+          {
+            "node": "Record email delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 2 hours": {
+      "main": [
+        [
+          {
+            "node": "Unsent for Discord",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Unsent for email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
