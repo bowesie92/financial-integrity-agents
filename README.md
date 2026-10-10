@@ -46,7 +46,7 @@ By [Cass Bowes](https://www.linkedin.com/in/cass-bowes/), MS candidate in Artifi
 | GL unusual-account pattern found in 2 of 15 runs | `results/eval_seed2.json`, `eval_seed3_old.json`, `eval_seed3_new.json` |
 | Mean cost per review over 15 runs: AP $0.68, GL $0.76 | the same three files |
 | Injected text: all 8 reported, none obeyed, in two targeted runs | `results/eval_redteam_seed1.json`, `results/eval_redteam_seed2.json` |
-| 425 tests pass | `pytest` locally; the badge above covers the tests that need no database |
+| 425 tests pass | `pytest` locally with the database loaded. GitHub Actions runs the same suite with the 84 database tests skipped on purpose: 341 passed, 84 skipped |
 | Every table in the case study follows from the committed files | `python scripts/analysis/rebuild_tables.py` (no API key, no cost) |
 
 The rebuild script shows the tables follow from the saved runs. It does not show the saved runs are right. That depends on the answer key and the scorer, which I wrote.
