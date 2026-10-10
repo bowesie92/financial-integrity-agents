@@ -1,11 +1,12 @@
 """One-off setup: schema fia and roles fia_admin, fia_agent. Safe to re-run."""
+import os
 import secrets
 from pathlib import Path
 
 import psycopg
 from psycopg import sql
 
-ENV = Path("/etc/financial-integrity-agents-secrets/supabase.env")
+ENV = Path(os.environ.get("FIA_SECRETS_DIR", "/etc/financial-integrity-agents-secrets")) / "supabase.env"
 ROLES = {"fia_admin": "SUPABASE_FIA_ADMIN_PASSWORD", "fia_agent": "SUPABASE_FIA_AGENT_PASSWORD"}
 
 

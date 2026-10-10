@@ -7,6 +7,7 @@ Reads the key from the env file by variable NAME and never prints it. Checks tha
 is accepted, the model calls the tool, the tool result goes back, history round-trips, and the
 workspace header is present. Exit 0 means every check passed.
 """
+import os
 import argparse
 import re
 import sys
@@ -34,7 +35,7 @@ def main():
     ap.add_argument("--provider", default="anthropic")
     ap.add_argument("--model", default="dev")
     ap.add_argument("--key-var", required=True)
-    ap.add_argument("--env-file", default="/etc/financial-integrity-agents-secrets/anthropic.env")
+    ap.add_argument("--env-file", default=os.path.join(os.environ.get("FIA_SECRETS_DIR", "/etc/financial-integrity-agents-secrets"), "anthropic.env"))
     ap.add_argument("--strict", action="store_true")
     a = ap.parse_args()
     if a.provider != "anthropic":

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from anthropic import Anthropic
 
-env = Path("/etc/financial-integrity-agents-secrets/anthropic.env")
+env = Path(os.environ.get("FIA_SECRETS_DIR", "/etc/financial-integrity-agents-secrets")) / "anthropic.env"
 for line in env.read_text().splitlines():
     line = line.strip()
     if line and not line.startswith("#") and "=" in line:

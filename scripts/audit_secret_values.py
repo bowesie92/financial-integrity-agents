@@ -2,13 +2,14 @@
 Reads every KEY=value line from the env files you name (default: the secrets folder), then asks, with hidden
 input, for any extra values such as the Discord webhook URL. Prints only the variable name and where a match
 was found. Run from the repo root: python scripts/audit_secret_values.py [file.env ...]"""
+import os
 import getpass, glob, re, subprocess, sys, urllib.parse
 
 def git(*a):
     return subprocess.run(["git", *a], capture_output=True).stdout
 
 secrets = {}
-files = sys.argv[1:] or sorted(glob.glob("/etc/financial-integrity-agents-secrets/*.env"))
+files = sys.argv[1:] or sorted(glob.glob(os.path.join(os.environ.get("FIA_SECRETS_DIR", "/etc/financial-integrity-agents-secrets"), "*.env")))
 skipped = []
 for f in files:
     for line in open(f, errors="ignore"):

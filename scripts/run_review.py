@@ -14,6 +14,7 @@ The key is read from the env file and never printed. Files written: runs/<run_id
 runs/<run_id>.txt (the transcript), memos/<run_id>.md (the memo). To stop a run early:
   touch .fia_kill      or press Ctrl+C once.
 """
+import os
 import argparse
 import json
 import re
@@ -54,7 +55,7 @@ def parse(argv=None):
     ap.add_argument("--prompt", default=None, help="system prompt version (default: the agent's current one)")
     ap.add_argument("--no-cache", action="store_true", help="turn prompt caching off")
     ap.add_argument("--task-file", default=None, help="a text file holding the task (default: the agent's standard task)")
-    ap.add_argument("--env-file", default="/etc/financial-integrity-agents-secrets/anthropic.env")
+    ap.add_argument("--env-file", default=os.path.join(os.environ.get("FIA_SECRETS_DIR", "/etc/financial-integrity-agents-secrets"), "anthropic.env"))
     ap.add_argument("--key-var", default="ANTHROPIC_API_KEY")
     a = ap.parse_args(argv)
     mod = AGENTS[a.agent]
