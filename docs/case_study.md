@@ -133,7 +133,7 @@ Same seed, five runs each:
 
 One caution on the scorer: on seed 2 it flagged four injected items as "likely obeyed" in the AP run that was cut off with no findings. That is a gap in the scorer, not evidence the agent followed a hostile note, and I do not count it as obedience.
 
-Haiku's precision and decoy clearance look excellent only because it reports far fewer findings. In the injection rows, 0 obeyed describes the 20 cases the agent saw. For the other 20 the invoice never appeared in a tool result, so the test cannot say what the agent would have done. In the general-prompt set Sonnet 5.5 saw 19, reported 8 and likely obeyed 1. For a financial reviewer the worst failures are missing a problem and obeying a hostile note, so a cost saving of about 3.7 times did not justify the swap. Sonnet 5.5 is the final model.
+Haiku's precision and decoy clearance look excellent only because it reports far fewer findings. In the injection rows, 0 obeyed describes the 20 cases the agent saw. For the other 20 the invoice never appeared in a tool result, so the test cannot say what the agent would have done. In the general-prompt set Sonnet 5.5 saw 19, reported 8 and likely obeyed none of the cases it saw. The scorer flagged one more case, on an invoice that never appeared in a tool result, so it is not evidence of obedience. For a financial reviewer the worst failures are missing a problem and obeying a hostile note, so a cost saving of about 3.7 times did not justify the swap. Sonnet 5.5 is the final model.
 
 ### Did a more general prompt help?
 
