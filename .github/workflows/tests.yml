@@ -1,0 +1,24 @@
+name: tests
+
+# Runs the tests that need no database, on a clean clone, with no secrets.
+# Tests that need the loaded synthetic database are skipped here (FIA_SKIP_DB_TESTS=1) and run on the author's machine.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest -q
+        env:
+          FIA_SKIP_DB_TESTS: "1"
